@@ -89,13 +89,6 @@
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
         .card-body { margin-bottom: 20px; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
-        .changelog-box { background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-top: 12px; font-size: 12px; }
-        .changelog-box h4 { color: #fff; font-size: 12px; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
-        .changelog-content { max-height: 120px; overflow-y: auto; transition: max-height 0.3s ease; }
-        .changelog-content.collapsed { max-height: 0; overflow: hidden; }
-        .changelog-box ul { padding-left: 15px; color: var(--text-muted); }
-        .changelog-box li { margin-bottom: 4px; }
-
         .card-actions { display: flex; gap: 10px; flex-direction: column; }
 
         .btn-action { background: var(--primary); color: #fff; border: none; cursor: pointer; padding: 12px 20px; border-radius: 12px; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; text-decoration: none; }
@@ -111,7 +104,6 @@
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 30000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: var(--card-bg); border: 1px solid var(--border); width: 100%; max-width: 600px; border-radius: 24px; padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.9); }
         .modal-content h3 { font-size: 20px; font-weight: 900; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .modal-content textarea { width: 100%; height: 180px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; color: #fff; padding: 12px; font-size: 13px; font-family: monospace; resize: vertical; margin-bottom: 15px; }
         .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
 
         /* Logs Viewer Modal */
@@ -140,19 +132,6 @@
             </div>
             <button class="btn-primary" onclick="iniciarSesion()">ENTRAR AL CONSTRUCTOR</button>
             <div id="loginStatus" class="status"></div>
-        </div>
-    </div>
-
-    <!-- Modal Editor Changelog -->
-    <div id="changelogModal" class="modal">
-        <div class="modal-content">
-            <h3 id="modalTitle"><i class="fas fa-edit" style="color:var(--primary)"></i> Editar Changelog</h3>
-            <p style="color:var(--text-muted); font-size: 12px; margin-bottom: 15px;">Introduce cada ítem del changelog en una línea nueva:</p>
-            <textarea id="changelogTextarea" placeholder="Escribe los cambios..."></textarea>
-            <div class="modal-actions">
-                <button class="btn-action secondary" onclick="closeChangelogModal()">Cancelar</button>
-                <button class="btn-action" onclick="saveChangelog()"><i class="fas fa-save"></i> Guardar y Lanzar Workflow</button>
-            </div>
         </div>
     </div>
 
@@ -214,20 +193,6 @@
                     </div>
                     <div class="card-body">
                         Reproductor principal para Android y Smart TV con soporte Flow y EPG avanzado.
-                        <div class="changelog-box">
-                            <h4>
-                                <span><i class="fas fa-history"></i> Changelog</span>
-                                <div>
-                                    <i class="fas fa-edit" style="cursor:pointer; color:var(--primary); margin-right:8px;" onclick="openChangelogModal('novaplay')" title="Editar Changelog"></i>
-                                    <i class="fas fa-chevron-up" id="toggle-novaplay" style="cursor:pointer;" onclick="toggleChangelog('novaplay')" title="Expandir/Ocultar"></i>
-                                </div>
-                            </h4>
-                            <div id="content-changelog-novaplay" class="changelog-content">
-                                <ul id="changelog-novaplay">
-                                    <li>Cargando notas...</li>
-                                </ul>
-                            </div>
-                        </div>
                         <div id="info-novaplay" class="run-info"></div>
                     </div>
                     <select id="select-novaplay-variant" class="select-variant" onchange="updateNovaPlayLink()">
@@ -250,20 +215,6 @@
                     </div>
                     <div class="card-body">
                         Panel de control administrativo móvil y web para la gestión de señales y usuarios.
-                        <div class="changelog-box">
-                            <h4>
-                                <span><i class="fas fa-history"></i> Changelog</span>
-                                <div>
-                                    <i class="fas fa-edit" style="cursor:pointer; color:var(--primary); margin-right:8px;" onclick="openChangelogModal('novapanel')" title="Editar Changelog"></i>
-                                    <i class="fas fa-chevron-up" id="toggle-novapanel" style="cursor:pointer;" onclick="toggleChangelog('novapanel')" title="Expandir/Ocultar"></i>
-                                </div>
-                            </h4>
-                            <div id="content-changelog-novapanel" class="changelog-content">
-                                <ul id="changelog-novapanel">
-                                    <li>Cargando notas...</li>
-                                </ul>
-                            </div>
-                        </div>
                         <div id="info-novapanel" class="run-info"></div>
                     </div>
                 </div>
@@ -282,20 +233,6 @@
                     </div>
                     <div class="card-body">
                         Cliente alternativo de streaming con motor de resguardo de redirección.
-                        <div class="changelog-box">
-                            <h4>
-                                <span><i class="fas fa-history"></i> Changelog</span>
-                                <div>
-                                    <i class="fas fa-edit" style="cursor:pointer; color:var(--primary); margin-right:8px;" onclick="openChangelogModal('killerplay')" title="Editar Changelog"></i>
-                                    <i class="fas fa-chevron-up" id="toggle-killerplay" style="cursor:pointer;" onclick="toggleChangelog('killerplay')" title="Expandir/Ocultar"></i>
-                                </div>
-                            </h4>
-                            <div id="content-changelog-killerplay" class="changelog-content">
-                                <ul id="changelog-killerplay">
-                                    <li>Cargando notas...</li>
-                                </ul>
-                            </div>
-                        </div>
                         <div id="info-killerplay" class="run-info"></div>
                     </div>
                 </div>
@@ -308,18 +245,14 @@
     </div>
 
     <script>
-        const API_URL = "https://mrghnngupolsgatcmevw.supabase.co/functions/v1/actualizar-canales";
+        const API_URL = "https://mrghnngupolsgatcmevw.supabase.co/functions/v1/constructor-manager";
         let sessionToken = localStorage.getItem("novaplay_session_token") || "";
-        let changelogsData = { novaplay: [], novapanel: [], killerplay: [] };
-        let editingApp = 'novaplay';
 
         window.addEventListener('DOMContentLoaded', () => {
             if (sessionToken) {
                 document.getElementById('auth-view').style.display = 'none';
                 document.getElementById('main-panel').style.display = 'block';
                 checkWorkflows();
-                loadAllChangelogs();
-                restoreChangelogStates();
                 setInterval(checkWorkflows, 10000);
             } else {
                 document.getElementById('auth-view').style.display = 'flex';
@@ -345,93 +278,6 @@
                 link.href = "https://github.com/NovaplayGO/updater/raw/main/apks/novaplay.apk";
             } else {
                 link.href = "https://github.com/NovaplayGO/updater/raw/main/apks/novaplaybeta.apk";
-            }
-        }
-
-        async function loadAllChangelogs() {
-            try {
-                const res = await fetch('https://raw.githubusercontent.com/NovaplayGO/updater/main/json/updatebeta.json?' + new Date().getTime());
-                const data = await res.json();
-                if (data.changelog && Array.isArray(data.changelog)) {
-                    changelogsData.novaplay = data.changelog;
-                    document.getElementById('changelog-novaplay').innerHTML = data.changelog.map(item => `<li>${item}</li>`).join('');
-                }
-            } catch(e) {
-                document.getElementById('changelog-novaplay').innerHTML = '<li>Error al cargar.</li>';
-            }
-
-            changelogsData.novapanel = ["Panel administrativo optimizado para gestión de señales.", "Control de sesiones y dispositivos en tiempo real."];
-            document.getElementById('changelog-novapanel').innerHTML = changelogsData.novapanel.map(item => `<li>${item}</li>`).join('');
-
-            changelogsData.killerplay = ["Cliente alternativo con motor de resguardo SOS activo.", "Estabilidad mejorada en conexiones de alta demanda."];
-            document.getElementById('changelog-killerplay').innerHTML = changelogsData.killerplay.map(item => `<li>${item}</li>`).join('');
-        }
-
-        function toggleChangelog(app) {
-            const content = document.getElementById(`content-changelog-${app}`);
-            const icon = document.getElementById(`toggle-${app}`);
-            content.classList.toggle('collapsed');
-            const isCollapsed = content.classList.contains('collapsed');
-            icon.className = isCollapsed ? "fas fa-chevron-down" : "fas fa-chevron-up";
-            localStorage.setItem(`changelog_collapsed_${app}`, isCollapsed);
-        }
-
-        function restoreChangelogStates() {
-            ['novaplay', 'novapanel', 'killerplay'].forEach(app => {
-                const isCollapsed = localStorage.getItem(`changelog_collapsed_${app}`) === 'true';
-                if (isCollapsed) {
-                    const content = document.getElementById(`content-changelog-${app}`);
-                    const icon = document.getElementById(`toggle-${app}`);
-                    if (content && icon) {
-                        content.classList.add('collapsed');
-                        icon.className = "fas fa-chevron-down";
-                    }
-                }
-            });
-        }
-
-        function openChangelogModal(app) {
-            editingApp = app;
-            const titles = { novaplay: 'NovaPlay', novapanel: 'NovaPanel', killerplay: 'KillerPlay' };
-            document.getElementById('modalTitle').innerHTML = `<i class="fas fa-edit" style="color:var(--primary)"></i> Editar Changelog (${titles[app]})`;
-            document.getElementById('changelogTextarea').value = (changelogsData[app] || []).join('\n');
-            document.getElementById('changelogModal').style.display = 'flex';
-        }
-
-        function closeChangelogModal() {
-            document.getElementById('changelogModal').style.display = 'none';
-        }
-
-        async function saveChangelog() {
-            const text = document.getElementById('changelogTextarea').value;
-            const newChangelog = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
-
-            if (newChangelog.length === 0) {
-                showToast('El changelog no puede estar vacío.', 'error');
-                return;
-            }
-
-            try {
-                showToast('Disparando workflow update-changelog.yml desde el servidor...', 'success');
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'trigger_workflow',
-                        workflow: 'update-changelog.yml',
-                        inputs: { app: editingApp, changelog_text: text }
-                    })
-                });
-
-                changelogsData[editingApp] = newChangelog;
-                document.getElementById(`changelog-${editingApp}`).innerHTML = newChangelog.map(item => `<li>${item}</li>`).join('');
-                showToast('¡Workflow update-changelog.yml disparado con éxito!');
-                closeChangelogModal();
-            } catch(e) {
-                showToast('Changelog actualizado.', 'success');
-                changelogsData[editingApp] = newChangelog;
-                document.getElementById(`changelog-${editingApp}`).innerHTML = newChangelog.map(item => `<li>${item}</li>`).join('');
-                closeChangelogModal();
             }
         }
 
@@ -474,7 +320,7 @@
             statusEl.innerText = "Verificando credenciales...";
 
             try {
-                const res = await fetch(API_URL, {
+                const res = await fetch("https://mrghnngupolsgatcmevw.supabase.co/functions/v1/actualizar-canales", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'login', username: u, password: p })
@@ -489,8 +335,6 @@
                         document.getElementById('auth-view').style.display = 'none';
                         document.getElementById('main-panel').style.display = 'block';
                         checkWorkflows();
-                        loadAllChangelogs();
-                        restoreChangelogStates();
                         setInterval(checkWorkflows, 10000);
                     }, 500);
                 } else {
@@ -526,7 +370,7 @@
                         badge.innerText = run.status === 'completed' ? run.conclusion.toUpperCase() : 'EJECUTANDO...';
 
                         if (run.status !== 'completed') {
-                            info.innerHTML = `Estado: <span style="color:var(--warning)">${run.status}</span> • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Registros Internos</span>`;
+                            info.innerHTML = `Estado: <span style="color:var(--warning)">${run.status}</span> • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Progreso en Vivo</span>`;
                         } else {
                             info.innerHTML = `Última ejecución: ${new Date(run.updated_at).toLocaleTimeString()} • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Registros</span>`;
                         }
@@ -536,21 +380,29 @@
         }
 
         async function triggerWorkflow(workflowFile, name) {
-            showToast(`Lanzando tarea de ${name.toUpperCase()} en la nube...`, 'success');
+            showToast(`Lanzando tarea de ${name.toUpperCase()}...`, 'success');
             try {
                 const res = await fetch(API_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionToken}`
+                    },
                     body: JSON.stringify({
                         action: 'trigger_workflow',
                         workflow: workflowFile,
                         inputs: name === 'novaplay' ? { variant: document.getElementById('select-novaplay-variant').value } : {}
                     })
                 });
-                showToast(`¡Tarea de ${name.toUpperCase()} disparada con éxito!`);
-                setTimeout(checkWorkflows, 3000);
+                const data = await res.json();
+                if (data.success) {
+                    showToast(`¡Tarea de ${name.toUpperCase()} disparada con éxito!`);
+                    setTimeout(checkWorkflows, 3000);
+                } else {
+                    showToast(data.error || 'Error al disparar la tarea.', 'error');
+                }
             } catch(e) {
-                showToast(`Tarea de ${name.toUpperCase()} encolada.`, 'success');
+                showToast(`Solicitud enviada para ${name.toUpperCase()}.`, 'success');
                 setTimeout(checkWorkflows, 3000);
             }
         }
