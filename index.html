@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>NOVAPLAY | CONSTRUCTOR</title>
+    <link rel="icon" type="image/webp" href="https://raw.githubusercontent.com/novaplaygo/novaimg/main/novasplash.webp">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #e50914;
+            --primary-hover: #b91c1c;
+            --bg: #080a10;
+            --card-bg: #11151f;
+            --input-bg: #1a1f2e;
+            --text: #ffffff;
+            --text-muted: #9aa3b2;
+            --border: rgba(255,255,255,0.05);
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #ffbb00;
+            --nav-height: 70px;
+        }
+
+        * { box-sizing: border-box; outline: none; margin: 0; padding: 0; }
+        html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+        .hidden { display: none !important; }
+
+        /* Navegación Premium */
+        .nova-nav { position: fixed; top: 0; width: 100%; z-index: 10000; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .nav-inner { max-width: 1400px; margin: auto; height: var(--nav-height); padding: 0 30px; display: flex; align-items: center; justify-content: space-between; }
+        .nav-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #fff; font-weight: 900; font-size: 22px; letter-spacing: -1px; }
+        .nav-brand img { width: 36px; height: 32px; border-radius: 8px; }
+
+        .nav-links { display: flex; gap: 15px; align-items: center; }
+        .nav-links a { color: #ccc; text-decoration: none; font-size: 14px; font-weight: 600; transition: 0.2s; padding: 10px 15px; border-radius: 10px; }
+        .nav-links a:hover { color: #fff; background: rgba(255,255,255,0.05); }
+
+        /* Dropdown de Administración */
+        .admin-menu { position: relative; display: none; align-items: center; height: var(--nav-height); padding: 0 10px; }
+        .btn-admin { background: #fff; color: #000; font-weight: 900; border: none; cursor: pointer; padding: 10px 20px; border-radius: 12px; font-size: 13px; display: flex; align-items: center; gap: 10px; transition: 0.3s; position: relative; z-index: 10002; }
+        .btn-admin:hover { background: var(--primary); color: #fff; box-shadow: 0 0 20px rgba(229,9,20,0.4); }
+        .dropdown-content { position: absolute; top: 100%; right: 0; background: var(--card-bg); min-width: 280px; border-radius: 24px; border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.9); z-index: 10001; margin-top: -10px; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; }
+        .admin-menu.active .dropdown-content { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; }
+        @media (min-width: 901px) {
+            .admin-menu:hover .dropdown-content { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; }
+        }
+        .dropdown-content a { padding: 16px 25px; color: #fff !important; text-decoration: none !important; font-size: 13px !important; font-weight: 700 !important; border-bottom: 1px solid rgba(255,255,255,0.03); transition: 0.2s; display: flex; align-items: center; gap: 15px; }
+        .dropdown-content a i { width: 20px; color: var(--primary); text-align: center; font-size: 16px; }
+        .dropdown-content a:hover { background: rgba(255,255,255,0.05); padding-left: 30px; color: var(--primary) !important; }
+        .dropdown-content .logout-link { color: var(--error) !important; border-bottom: none; }
+        .dropdown-content .logout-link i { color: var(--error); }
+
+        /* Auth View */
+        #auth-view { position: fixed; inset: 0; background: var(--bg); z-index: 20001; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { width: 400px; padding: 40px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.8); text-align: center; }
+        .auth-card h2 { font-size: 24px; font-weight: 900; margin-bottom: 8px; }
+        .auth-card p { color: var(--text-muted); font-size: 13px; margin-bottom: 25px; }
+        .form-group { text-align: left; margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+        .form-group input { width: 100%; padding: 14px 16px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; color: #fff; font-size: 14px; }
+        .btn-primary { width: 100%; background: var(--primary); color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 900; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .status { margin-top: 15px; font-size: 13px; font-weight: 700; }
+        .status.error { color: var(--error); }
+        .status.success { color: var(--success); }
+
+        /* Contenedor Principal */
+        .main-container { max-width: 1400px; margin: calc(var(--nav-height) + 40px) auto 40px auto; padding: 0 30px; }
+
+        .header-title { font-size: 28px; font-weight: 900; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .header-subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
+
+        /* Grid de Tarjetas */
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 30px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card-title { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .card-title i { color: var(--primary); font-size: 20px; }
+
+        .status-badge { padding: 6px 12px; border-radius: 30px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+        .status-badge.idle { background: rgba(154,163,178,0.1); color: var(--text-muted); }
+        .status-badge.running { background: rgba(255,187,0,0.1); color: var(--warning); border: 1px solid var(--warning); animation: pulse 1.5s infinite; }
+        .status-badge.success { background: rgba(16,185,129,0.1); color: var(--success); }
+        .status-badge.failure { background: rgba(239,68,68,0.1); color: var(--error); }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .card-body { margin-bottom: 20px; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+        .changelog-box { background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-top: 12px; font-size: 12px; }
+        .changelog-box h4 { color: #fff; font-size: 12px; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
+        .changelog-content { max-height: 120px; overflow-y: auto; transition: max-height 0.3s ease; }
+        .changelog-content.collapsed { max-height: 0; overflow: hidden; }
+        .changelog-box ul { padding-left: 15px; color: var(--text-muted); }
+        .changelog-box li { margin-bottom: 4px; }
+
+        .card-actions { display: flex; gap: 10px; flex-direction: column; }
+
+        .btn-action { background: var(--primary); color: #fff; border: none; cursor: pointer; padding: 12px 20px; border-radius: 12px; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; text-decoration: none; }
+        .btn-action:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        .btn-action.secondary { background: var(--input-bg); color: #fff; border: 1px solid var(--border); }
+        .btn-action.secondary:hover { background: rgba(255,255,255,0.05); }
+
+        .select-variant { width: 100%; background: var(--input-bg); color: #fff; border: 1px solid var(--border); padding: 10px 15px; border-radius: 10px; font-size: 13px; font-weight: 700; margin-bottom: 10px; cursor: pointer; }
+        .run-info { font-size: 12px; color: var(--text-muted); margin-top: 8px; text-align: center; }
+        .run-info span { color: var(--primary); font-weight: 700; cursor: pointer; text-decoration: underline; }
+
+        /* Modales */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 30000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); border: 1px solid var(--border); width: 100%; max-width: 600px; border-radius: 24px; padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.9); }
+        .modal-content h3 { font-size: 20px; font-weight: 900; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .modal-content textarea { width: 100%; height: 180px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; color: #fff; padding: 12px; font-size: 13px; font-family: monospace; resize: vertical; margin-bottom: 15px; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+        /* Logs Viewer Modal */
+        .logs-pre { background: #000; color: #00ff88; font-family: monospace; font-size: 11px; padding: 15px; border-radius: 12px; max-height: 350px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 15px; border: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+
+    <!-- Auth View -->
+    <div id="auth-view">
+        <div class="auth-card">
+            <h2>NOVAPLAY CONSTRUCTOR</h2>
+            <p>Inicia sesión con credenciales de Staff</p>
+            <div class="form-group">
+                <label>Usuario</label>
+                <input type="text" id="username" placeholder="Usuario staff">
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="password" placeholder="••••••••">
+            </div>
+            <button class="btn-primary" onclick="iniciarSesion()">ENTRAR AL CONSTRUCTOR</button>
+            <div id="loginStatus" class="status"></div>
+        </div>
+    </div>
+
+    <!-- Modal Editor Changelog -->
+    <div id="changelogModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle"><i class="fas fa-edit" style="color:var(--primary)"></i> Editar Changelog</h3>
+            <p style="color:var(--text-muted); font-size: 12px; margin-bottom: 15px;">Introduce cada ítem del changelog en una línea nueva:</p>
+            <textarea id="changelogTextarea" placeholder="Escribe los cambios..."></textarea>
+            <div class="modal-actions">
+                <button class="btn-action secondary" onclick="closeChangelogModal()">Cancelar</button>
+                <button class="btn-action" onclick="saveChangelog()"><i class="fas fa-save"></i> Guardar y Publicar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Logs en Tiempo Real -->
+    <div id="logsModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <h3 id="logsModalTitle"><i class="fas fa-terminal" style="color:var(--primary)"></i> Progreso y Registros del Workflow</h3>
+            <div id="logsContainer" class="logs-pre">Cargando registros...</div>
+            <div class="modal-actions">
+                <button class="btn-action secondary" onclick="closeLogsModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegación Premium -->
+    <nav class="nova-nav">
+        <div class="nav-inner">
+            <a href="https://novaplaygo.github.io/" class="nav-brand">
+                <img src="https://raw.githubusercontent.com/novaplaygo/novaimg/main/novasplash.webp" alt="Logo">
+                CONSTRUCTOR
+            </a>
+            <div class="nav-links">
+                <a href="https://novaplaygo.github.io/">INICIO</a>
+                <div class="admin-menu" id="adminMenu" style="display: flex;">
+                    <button class="btn-admin"><i class="fas fa-user-shield"></i> PANEL</button>
+                    <div class="dropdown-content">
+                        <a href="https://novaplaygo.github.io/Dashboard/"><i class="fas fa-chart-line"></i> Dashboard Central</a>
+                        <a href="https://novaplaygo.github.io/panel-canales/"><i class="fas fa-tv"></i> Admin. Canales</a>
+                        <a href="https://novaplaygo.github.io/NovaSecurity/"><i class="fas fa-shield-alt"></i> NovaSecurity</a>
+                        <a href="https://novaplaygo.github.io/constructor/"><i class="fas fa-hammer"></i> Constructor</a>
+                        <a href="https://novaplaygo.github.io/novaimg/actualizar-icono/"><i class="fas fa-icons"></i> Gestión de Iconos</a>
+                        <a href="https://novaplaygo.github.io/novaimg/generador/"><i class="fas fa-magic"></i> Icon Studio</a>
+                        <a href="https://novaplaygo.github.io/novaepg/"><i class="fas fa-calendar-alt"></i> Buscador EPG ID</a>
+                        <a href="#" onclick="logout(); return false;" class="logout-link"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <div class="main-container" id="main-panel" style="display:none;">
+        <div class="header-title">Panel de Construcción</div>
+        <div class="header-subtitle">Gestiona la compilación de APKs, estados de workflows y descargas directas.</div>
+
+        <div class="grid-cards">
+            <!-- NovaPlay Card -->
+            <div class="card">
+                <div>
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-play-circle"></i> NovaPlay</div>
+                        <span id="badge-novaplay" class="status-badge idle">VERIFICANDO...</span>
+                    </div>
+                    <div class="card-body">
+                        Reproductor principal para Android y Smart TV con soporte Flow y EPG avanzado.
+                        <div class="changelog-box">
+                            <h4>
+                                <span><i class="fas fa-history"></i> Changelog</span>
+                                <div>
+                                    <i class="fas fa-edit" style="cursor:pointer; color:var(--primary); margin-right:8px;" onclick="openChangelogModal('novaplay')" title="Editar Changelog"></i>
+                                    <i class="fas fa-chevron-up" id="toggle-novaplay" style="cursor:pointer;" onclick="toggleChangelog('novaplay')" title="Expandir/Ocultar"></i>
+                                </div>
+                            </h4>
+                            <div id="content-changelog-novaplay" class="changelog-content">
+                                <ul id="changelog-novaplay">
+                                    <li>Cargando notas...</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="info-novaplay" class="run-info"></div>
+                    </div>
+                    <select id="select-novaplay-variant" class="select-variant" onchange="updateNovaPlayLink()">
+                        <option value="stable">Versión Estable (novaplay.apk)</option>
+                        <option value="beta" selected>Versión Beta (novaplaybeta.apk)</option>
+                    </select>
+                </div>
+                <div class="card-actions">
+                    <button class="btn-action" onclick="triggerWorkflow('build-novaplay.yml', 'novaplay')"><i class="fas fa-hammer"></i> Lanzar Compilación</button>
+                    <a id="link-novaplay" href="https://github.com/NovaplayGO/updater/raw/main/apks/novaplaybeta.apk" class="btn-action secondary"><i class="fas fa-download"></i> Descargar APK Actual</a>
+                </div>
+            </div>
+
+            <!-- NovaPanel Card -->
+            <div class="card">
+                <div>
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-chart-line"></i> NovaPanel</div>
+                        <span id="badge-novapanel" class="status-badge idle">VERIFICANDO...</span>
+                    </div>
+                    <div class="card-body">
+                        Panel de control administrativo móvil y web para la gestión de señales y usuarios.
+                        <div class="changelog-box">
+                            <h4>
+                                <span><i class="fas fa-history"></i> Changelog</span>
+                                <div>
+                                    <i class="fas fa-edit" style="cursor:pointer; color:var(--primary); margin-right:8px;" onclick="openChangelogModal('novapanel')" title="Editar Changelog"></i>
+                                    <i class="fas fa-chevron-up" id="toggle-novapanel" style="cursor:pointer;" onclick="toggleChangelog('novapanel')" title="Expandir/Ocultar"></i>
+                                </div>
+                            </h4>
+                            <div id="content-changelog-novapanel" class="changelog-content">
+                                <ul id="changelog-novapanel">
+                                    <li>Cargando notas...</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="info-novapanel" class="run-info"></div>
+                    </div>
+                </div>
+                <div class="card-actions" style="margin-top: 15px;">
+                    <button class="btn-action" onclick="triggerWorkflow('build-novapanel.yml', 'novapanel')"><i class="fas fa-hammer"></i> Lanzar Compilación</button>
+                    <a id="link-novapanel" href="https://github.com/NovaplayGO/updater/raw/main/apks/novapanel.apk" class="btn-action secondary"><i class="fas fa-download"></i> Descargar APK Actual</a>
+                </div>
+            </div>
+
+            <!-- KillerPlay Card -->
+            <div class="card">
+                <div>
+                    <div class="card-header">
+                        <div class="card-title"><i class="fas fa-tv"></i> KillerPlay</div>
+                        <span id="badge-killerplay" class="status-badge idle">VERIFICANDO...</span>
+                    </div>
+                    <div class="card-body">
+                        Cliente alternativo de streaming con motor de resguardo de redirección.
+                        <div class="changelog-box">
+                            <h4>
+                                <span><i class="fas fa-history"></i> Changelog</span>
+                                <div>
+                                    <i class="fas fa-edit" style="cursor:pointer; color:var(--primary); margin-right:8px;" onclick="openChangelogModal('killerplay')" title="Editar Changelog"></i>
+                                    <i class="fas fa-chevron-up" id="toggle-killerplay" style="cursor:pointer;" onclick="toggleChangelog('killerplay')" title="Expandir/Ocultar"></i>
+                                </div>
+                            </h4>
+                            <div id="content-changelog-killerplay" class="changelog-content">
+                                <ul id="changelog-killerplay">
+                                    <li>Cargando notas...</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div id="info-killerplay" class="run-info"></div>
+                    </div>
+                </div>
+                <div class="card-actions" style="margin-top: 15px;">
+                    <button class="btn-action" onclick="triggerWorkflow('build-killerplay.yml', 'killerplay')"><i class="fas fa-hammer"></i> Lanzar Compilación</button>
+                    <a id="link-killerplay" href="https://github.com/NovaplayGO/updater/raw/main/apks/killerplay.apk" class="btn-action secondary"><i class="fas fa-download"></i> Descargar APK Actual</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://mrghnngupolsgatcmevw.supabase.co/functions/v1/actualizar-canales";
+        let sessionToken = localStorage.getItem("novaplay_session_token") || "";
+        let changelogsData = { novaplay: [], novapanel: [], killerplay: [] };
+        let editingApp = 'novaplay';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionToken) {
+                document.getElementById('auth-view').style.display = 'none';
+                document.getElementById('main-panel').style.display = 'block';
+                checkWorkflows();
+                loadAllChangelogs();
+                restoreChangelogStates();
+                setInterval(checkWorkflows, 10000);
+            } else {
+                document.getElementById('auth-view').style.display = 'flex';
+                document.getElementById('main-panel').style.display = 'none';
+            }
+        });
+
+        function updateNovaPlayLink() {
+            const v = document.getElementById('select-novaplay-variant').value;
+            const link = document.getElementById('link-novaplay');
+            if (v === 'stable') {
+                link.href = "https://github.com/NovaplayGO/updater/raw/main/apks/novaplay.apk";
+            } else {
+                link.href = "https://github.com/NovaplayGO/updater/raw/main/apks/novaplaybeta.apk";
+            }
+        }
+
+        async function loadAllChangelogs() {
+            try {
+                const res = await fetch('https://raw.githubusercontent.com/NovaplayGO/updater/main/json/updatebeta.json?' + new Date().getTime());
+                const data = await res.json();
+                if (data.changelog && Array.isArray(data.changelog)) {
+                    changelogsData.novaplay = data.changelog;
+                    document.getElementById('changelog-novaplay').innerHTML = data.changelog.map(item => `<li>${item}</li>`).join('');
+                }
+            } catch(e) {
+                document.getElementById('changelog-novaplay').innerHTML = '<li>Error al cargar.</li>';
+            }
+
+            changelogsData.novapanel = ["Panel administrativo optimizado para gestión de señales.", "Control de sesiones y dispositivos en tiempo real."];
+            document.getElementById('changelog-novapanel').innerHTML = changelogsData.novapanel.map(item => `<li>${item}</li>`).join('');
+
+            changelogsData.killerplay = ["Cliente alternativo con motor de resguardo SOS activo.", "Estabilidad mejorada en conexiones de alta demanda."];
+            document.getElementById('changelog-killerplay').innerHTML = changelogsData.killerplay.map(item => `<li>${item}</li>`).join('');
+        }
+
+        function toggleChangelog(app) {
+            const content = document.getElementById(`content-changelog-${app}`);
+            const icon = document.getElementById(`toggle-${app}`);
+            content.classList.toggle('collapsed');
+            const isCollapsed = content.classList.contains('collapsed');
+            icon.className = isCollapsed ? "fas fa-chevron-down" : "fas fa-chevron-up";
+            localStorage.setItem(`changelog_collapsed_${app}`, isCollapsed);
+        }
+
+        function restoreChangelogStates() {
+            ['novaplay', 'novapanel', 'killerplay'].forEach(app => {
+                const isCollapsed = localStorage.getItem(`changelog_collapsed_${app}`) === 'true';
+                if (isCollapsed) {
+                    const content = document.getElementById(`content-changelog-${app}`);
+                    const icon = document.getElementById(`toggle-${app}`);
+                    if (content && icon) {
+                        content.classList.add('collapsed');
+                        icon.className = "fas fa-chevron-down";
+                    }
+                }
+            });
+        }
+
+        function openChangelogModal(app) {
+            editingApp = app;
+            const titles = { novaplay: 'NovaPlay', novapanel: 'NovaPanel', killerplay: 'KillerPlay' };
+            document.getElementById('modalTitle').innerHTML = `<i class="fas fa-edit" style="color:var(--primary)"></i> Editar Changelog (${titles[app]})`;
+            document.getElementById('changelogTextarea').value = (changelogsData[app] || []).join('\n');
+            document.getElementById('changelogModal').style.display = 'flex';
+        }
+
+        function closeChangelogModal() {
+            document.getElementById('changelogModal').style.display = 'none';
+        }
+
+        async function saveChangelog() {
+            const text = document.getElementById('changelogTextarea').value;
+            const newChangelog = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+
+            if (newChangelog.length === 0) {
+                alert('El changelog no puede estar vacío.');
+                return;
+            }
+
+            changelogsData[editingApp] = newChangelog;
+            document.getElementById(`changelog-${editingApp}`).innerHTML = newChangelog.map(item => `<li>${item}</li>`).join('');
+
+            alert(`Changelog de ${editingApp.toUpperCase()} actualizado localmente y copiado al portapapeles.`);
+            navigator.clipboard.writeText(JSON.stringify(newChangelog, null, 2));
+            closeChangelogModal();
+        }
+
+        async function openLogsModal(runId, appName) {
+            document.getElementById('logsModal').style.display = 'flex';
+            const container = document.getElementById('logsContainer');
+            container.innerText = `Cargando detalles de ejecución para ${appName.toUpperCase()} (Run ID: ${runId})...`;
+
+            try {
+                const res = await fetch(`https://api.github.com/repos/NovaplayGO/constructor/actions/runs/${runId}/jobs`);
+                const data = await res.json();
+                if (data.jobs && data.jobs.length > 0) {
+                    const job = data.jobs[0];
+                    let stepsHtml = job.steps.map(s => `[${s.status.toUpperCase()}] ${s.name} (${s.conclusion || 'en curso'})`).join('\n');
+                    container.innerText = `Job: ${job.name}\nEstado: ${job.status.toUpperCase()} | Resultado: ${job.conclusion || 'EN PROGRESO'}\n\nPasos del Pipeline:\n${stepsHtml}`;
+                } else {
+                    container.innerText = "No se encontraron registros activos para esta ejecución.";
+                }
+            } catch(e) {
+                container.innerText = "Error al conectar con la API de GitHub Actions.";
+            }
+        }
+
+        function closeLogsModal() {
+            document.getElementById('logsModal').style.display = 'none';
+        }
+
+        async function iniciarSesion() {
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+            const statusEl = document.getElementById('loginStatus');
+
+            if (!u || !p) {
+                statusEl.className = "status error";
+                statusEl.innerText = "Complete todos los campos";
+                return;
+            }
+
+            statusEl.className = "status";
+            statusEl.innerText = "Verificando credenciales...";
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'login', username: u, password: p })
+                });
+                const data = await res.json();
+                if (data.success && data.token) {
+                    sessionToken = data.token;
+                    localStorage.setItem("novaplay_session_token", sessionToken);
+                    statusEl.className = "status success";
+                    statusEl.innerText = "¡Acceso concedido!";
+                    setTimeout(() => {
+                        document.getElementById('auth-view').style.display = 'none';
+                        document.getElementById('main-panel').style.display = 'block';
+                        checkWorkflows();
+                        loadAllChangelogs();
+                        restoreChangelogStates();
+                        setInterval(checkWorkflows, 10000);
+                    }, 500);
+                } else {
+                    statusEl.className = "status error";
+                    statusEl.innerText = data.error || "Credenciales incorrectas";
+                }
+            } catch(e) {
+                statusEl.className = "status error";
+                statusEl.innerText = "Error de conexión con el servidor";
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("novaplay_session_token");
+            sessionToken = "";
+            location.reload();
+        }
+
+        async function checkWorkflows() {
+            const repos = ['build-novaplay.yml', 'build-novapanel.yml', 'build-killerplay.yml'];
+            const names = ['novaplay', 'novapanel', 'killerplay'];
+
+            for (let i = 0; i < repos.length; i++) {
+                try {
+                    const res = await fetch(`https://api.github.com/repos/NovaplayGO/constructor/actions/workflows/${repos[i]}/runs?per_page=1`);
+                    const data = await res.json();
+                    if (data.workflow_runs && data.workflow_runs.length > 0) {
+                        const run = data.workflow_runs[0];
+                        const badge = document.getElementById(`badge-${names[i]}`);
+                        const info = document.getElementById(`info-${names[i]}`);
+
+                        badge.className = `status-badge ${run.status === 'completed' ? run.conclusion : 'running'}`;
+                        badge.innerText = run.status === 'completed' ? run.conclusion.toUpperCase() : 'EJECUTANDO...';
+
+                        if (run.status !== 'completed') {
+                            info.innerHTML = `Estado: <span style="color:var(--warning)">${run.status}</span> • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Progreso en Vivo</span>`;
+                        } else {
+                            info.innerHTML = `Última ejecución: ${new Date(run.updated_at).toLocaleTimeString()} • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Registros</span>`;
+                        }
+                    }
+                } catch(e) {}
+            }
+        }
+
+        async function triggerWorkflow(workflowFile, name) {
+            if (!confirm(`¿Estás seguro de lanzar la tarea de compilación para ${name.toUpperCase()}?`)) return;
+            alert(`Para lanzar ${name.toUpperCase()}, verifica el token o ejecuta el workflow desde la pestaña de Acciones internas.`);
+        }
+    </script>
+</body>
+</html>
