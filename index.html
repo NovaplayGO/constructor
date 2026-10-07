@@ -245,6 +245,7 @@
     </div>
 
     <script>
+        const AUTH_URL = "https://mrghnngupolsgatcmevw.supabase.co/functions/v1/actualizar-canales";
         const API_URL = "https://mrghnngupolsgatcmevw.supabase.co/functions/v1/constructor-manager";
         let sessionToken = localStorage.getItem("novaplay_session_token") || "";
 
@@ -320,7 +321,7 @@
             statusEl.innerText = "Verificando credenciales...";
 
             try {
-                const res = await fetch("https://mrghnngupolsgatcmevw.supabase.co/functions/v1/actualizar-canales", {
+                const res = await fetch(AUTH_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'login', username: u, password: p })
@@ -370,7 +371,7 @@
                         badge.innerText = run.status === 'completed' ? run.conclusion.toUpperCase() : 'EJECUTANDO...';
 
                         if (run.status !== 'completed') {
-                            info.innerHTML = `Estado: <span style="color:var(--warning)">${run.status}</span> • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Progreso en Vivo</span>`;
+                            info.innerHTML = `Estado: <span style="color:var(--warning)">${run.status}</span> • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Registros Internos</span>`;
                         } else {
                             info.innerHTML = `Última ejecución: ${new Date(run.updated_at).toLocaleTimeString()} • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Registros</span>`;
                         }
@@ -380,7 +381,7 @@
         }
 
         async function triggerWorkflow(workflowFile, name) {
-            showToast(`Lanzando tarea de ${name.toUpperCase()}...`, 'success');
+            showToast(`Enviando orden para ${name.toUpperCase()}...`, 'success');
             try {
                 const res = await fetch(API_URL, {
                     method: 'POST',
@@ -396,14 +397,13 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    showToast(`¡Tarea de ${name.toUpperCase()} disparada con éxito!`);
+                    showToast(`¡Workflow de ${name.toUpperCase()} lanzado con éxito!`);
                     setTimeout(checkWorkflows, 3000);
                 } else {
-                    showToast(data.error || 'Error al disparar la tarea.', 'error');
+                    showToast(data.error || 'Error al lanzar el workflow.', 'error');
                 }
             } catch(e) {
-                showToast(`Solicitud enviada para ${name.toUpperCase()}.`, 'success');
-                setTimeout(checkWorkflows, 3000);
+                showToast(`Error de conexión con el servicio de compilación.`, 'error');
             }
         }
     </script>
