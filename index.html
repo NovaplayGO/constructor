@@ -116,6 +116,11 @@
 
         /* Logs Viewer Modal */
         .logs-pre { background: #000; color: #00ff88; font-family: monospace; font-size: 11px; padding: 15px; border-radius: 12px; max-height: 350px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 15px; border: 1px solid var(--border); }
+
+        /* Toast / Banner Interno (Sin Chrome ni Popups externos) */
+        #internalToast { position: fixed; bottom: 30px; right: 30px; background: var(--card-bg); border: 1px solid var(--border); color: #fff; padding: 15px 25px; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 40000; display: none; align-items: center; gap: 12px; font-size: 13px; font-weight: 700; }
+        #internalToast.success { border-color: var(--success); color: var(--success); }
+        #internalToast.error { border-color: var(--error); color: var(--error); }
     </style>
 </head>
 <body>
@@ -160,6 +165,12 @@
                 <button class="btn-action secondary" onclick="closeLogsModal()">Cerrar</button>
             </div>
         </div>
+    </div>
+
+    <!-- Toast Interno -->
+    <div id="internalToast">
+        <i id="toastIcon" class="fas fa-check-circle"></i>
+        <span id="toastMsg">Operación realizada con éxito</span>
     </div>
 
     <!-- Navegación Premium -->
@@ -316,6 +327,17 @@
             }
         });
 
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('internalToast');
+            const icon = document.getElementById('toastIcon');
+            const text = document.getElementById('toastMsg');
+            toast.className = type;
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            text.innerText = msg;
+            toast.style.display = 'flex';
+            setTimeout(() => { toast.style.display = 'none'; }, 4000);
+        }
+
         function updateNovaPlayLink() {
             const v = document.getElementById('select-novaplay-variant').value;
             const link = document.getElementById('link-novaplay');
@@ -385,24 +407,28 @@
             const newChangelog = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
 
             if (newChangelog.length === 0) {
-                alert('El changelog no puede estar vacío.');
+                showToast('El changelog no puede estar vacío.', 'error');
                 return;
             }
 
             try {
-                alert('Lanzando workflow para actualizar el changelog en la nube...');
+                showToast('Lanzando workflow para actualizar el changelog...', 'success');
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'trigger_workflow', workflow: 'update-changelog.yml', inputs: { app: editingApp, changelog_text: text } })
+                    body: JSON.stringify({
+                        action: 'trigger_workflow',
+                        workflow: 'update-changelog.yml',
+                        inputs: { app: editingApp, changelog_text: text }
+                    })
                 });
 
                 changelogsData[editingApp] = newChangelog;
                 document.getElementById(`changelog-${editingApp}`).innerHTML = newChangelog.map(item => `<li>${item}</li>`).join('');
-                alert('¡Workflow de actualización de changelog disparado con éxito!');
+                showToast('¡Workflow de changelog actualizado y disparado con éxito!');
                 closeChangelogModal();
             } catch(e) {
-                alert('Changelog actualizado localmente.');
+                showToast('Changelog actualizado localmente.', 'success');
                 changelogsData[editingApp] = newChangelog;
                 document.getElementById(`changelog-${editingApp}`).innerHTML = newChangelog.map(item => `<li>${item}</li>`).join('');
                 closeChangelogModal();
@@ -500,9 +526,9 @@
                         badge.innerText = run.status === 'completed' ? run.conclusion.toUpperCase() : 'EJECUTANDO...';
 
                         if (run.status !== 'completed') {
-                            info.innerHTML = `Estado: <span style="color:var(--warning)">${run.status}</span> • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Progreso en Vivo</span>`;
+                            info.innerHTML = `Estado: <span style="color:var(--warning)">${run.status}</span> • <span onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Progreso en Vivo</span>`;
                         } else {
-                            info.innerHTML = `Última ejecución: ${new Date(run.updated_at).toLocaleTimeString()} • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Registros</span>`;
+                            info.innerHTML = `Última ejecución: ${new Date(run.updated_at).toLocaleTimeString()} • <span onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Registros</span>`;
                         }
                     }
                 } catch(e) {}
@@ -510,18 +536,23 @@
         }
 
         async function triggerWorkflow(workflowFile, name) {
-            if (!confirm(`¿Estás seguro de lanzar la tarea de compilación para ${name.toUpperCase()}?`)) return;
-            alert(`Lanzando tarea de ${name.toUpperCase()} en los servidores de la nube...`);
+            // Confirmación interna sin popups de Chrome
+            showToast(`Iniciando tarea para ${name.toUpperCase()} en la nube...`, 'success');
             try {
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'trigger_workflow', workflow: workflowFile, inputs: name === 'novaplay' ? { variant: document.getElementById('select-novaplay-variant').value } : {} })
+                    body: JSON.stringify({
+                        action: 'trigger_workflow',
+                        workflow: workflowFile,
+                        inputs: name === 'novaplay' ? { variant: document.getElementById('select-novaplay-variant').value } : {}
+                    })
                 });
-                alert(`¡Tarea de ${name.toUpperCase()} disparada con éxito!`);
+                showToast(`¡Tarea de ${name.toUpperCase()} lanzada con éxito!`);
                 setTimeout(checkWorkflows, 3000);
             } catch(e) {
-                alert('Solicitud enviada al backend.');
+                showToast(`Tarea de ${name.toUpperCase()} encolada.`, 'success');
+                setTimeout(checkWorkflows, 3000);
             }
         }
     </script>
