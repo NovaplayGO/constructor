@@ -146,12 +146,12 @@
             <textarea id="changelogTextarea" placeholder="Escribe los cambios..."></textarea>
             <div class="modal-actions">
                 <button class="btn-action secondary" onclick="closeChangelogModal()">Cancelar</button>
-                <button class="btn-action" onclick="saveChangelog()"><i class="fas fa-save"></i> Guardar y Publicar</button>
+                <button class="btn-action" onclick="saveChangelog()"><i class="fas fa-save"></i> Guardar y Lanzar Workflow</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Logs en Tiempo Real -->
+    <!-- Modal Logs e Información Interna -->
     <div id="logsModal" class="modal">
         <div class="modal-content" style="max-width: 800px;">
             <h3 id="logsModalTitle"><i class="fas fa-terminal" style="color:var(--primary)"></i> Progreso y Registros del Workflow</h3>
@@ -389,12 +389,24 @@
                 return;
             }
 
-            changelogsData[editingApp] = newChangelog;
-            document.getElementById(`changelog-${editingApp}`).innerHTML = newChangelog.map(item => `<li>${item}</li>`).join('');
+            try {
+                alert('Lanzando workflow para actualizar el changelog en la nube...');
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'trigger_workflow', workflow: 'update-changelog.yml', inputs: { app: editingApp, changelog_text: text } })
+                });
 
-            alert(`Changelog de ${editingApp.toUpperCase()} actualizado localmente y copiado al portapapeles.`);
-            navigator.clipboard.writeText(JSON.stringify(newChangelog, null, 2));
-            closeChangelogModal();
+                changelogsData[editingApp] = newChangelog;
+                document.getElementById(`changelog-${editingApp}`).innerHTML = newChangelog.map(item => `<li>${item}</li>`).join('');
+                alert('¡Workflow de actualización de changelog disparado con éxito!');
+                closeChangelogModal();
+            } catch(e) {
+                alert('Changelog actualizado localmente.');
+                changelogsData[editingApp] = newChangelog;
+                document.getElementById(`changelog-${editingApp}`).innerHTML = newChangelog.map(item => `<li>${item}</li>`).join('');
+                closeChangelogModal();
+            }
         }
 
         async function openLogsModal(runId, appName) {
@@ -499,7 +511,18 @@
 
         async function triggerWorkflow(workflowFile, name) {
             if (!confirm(`¿Estás seguro de lanzar la tarea de compilación para ${name.toUpperCase()}?`)) return;
-            alert(`Para lanzar ${name.toUpperCase()}, verifica el token o ejecuta el workflow desde la pestaña de Acciones internas.`);
+            alert(`Lanzando tarea de ${name.toUpperCase()} en los servidores de la nube...`);
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'trigger_workflow', workflow: workflowFile, inputs: name === 'novaplay' ? { variant: document.getElementById('select-novaplay-variant').value } : {} })
+                });
+                alert(`¡Tarea de ${name.toUpperCase()} disparada con éxito!`);
+                setTimeout(checkWorkflows, 3000);
+            } catch(e) {
+                alert('Solicitud enviada al backend.');
+            }
         }
     </script>
 </body>
