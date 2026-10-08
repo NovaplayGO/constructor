@@ -350,7 +350,7 @@
                 const major = parseInt(parts[0]) || 0;
                 const minor = parseInt(parts[1]) || 0;
                 const patch = parseInt(parts[2]) || 0;
-                return major * 100 + minor * 10 + patch;
+                return major * 100 + minor * 10 + patch; // Ej: 5.2.2 -> 522
             }
             return parseInt(verStr.replace(/\D/g, '')) || 522;
         }
@@ -444,12 +444,7 @@
 
             let updatedObj = {
                 version: ver,
-                version_code: verCode,
-                size: currentJsonData.size || "18.5 MB",
-                force_update: forceUpdateVal,
-                apk_url: currentJsonData.apk_url || `https://github.com/NovaplayGO/updater/raw/main/apks/${cfg.file.replace('ms_aux/', '')}`,
-                changelog: changelogArr,
-                date: new Date().toISOString()
+                version_code: verCode
             };
 
             if (cfg.hasMin) {
@@ -457,9 +452,16 @@
                 updatedObj["min-version_code"] = minVerCode;
             }
 
+            updatedObj.size = currentJsonData.size || "18.5 MB";
+            updatedObj.force_update = forceUpdateVal;
+            updatedObj.apk_url = currentJsonData.apk_url || `https://github.com/NovaplayGO/updater/raw/main/apks/${cfg.file.replace('ms_aux/', '')}`;
+
             if (cfg.hasTexto) {
                 updatedObj.texto = document.getElementById('inputTexto').value.trim() || 'ACTUALIZACION OPCIONAL';
             }
+
+            updatedObj.changelog = changelogArr;
+            updatedObj.date = new Date().toISOString();
 
             showToast('Guardando cambios en el JSON...', 'success');
             try {
