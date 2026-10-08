@@ -143,7 +143,7 @@
 
             <div class="form-group">
                 <label>Aplicación</label>
-                <select id="appSelect" onchange="loadAppData()" class="select-variant" style="padding: 10px;">
+                <select id="appSelect" onchange="loadJsonData()" class="select-variant" style="padding: 10px;">
                     <option value="updatestable">NovaPlay Estable</option>
                     <option value="updatebeta">NovaPlay Beta</option>
                     <option value="panelupdater">NovaPanel</option>
@@ -151,15 +151,14 @@
                 </select>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div class="form-group">
-                    <label>Versión (Ej. 5.2.2)</label>
-                    <input type="text" id="inputVersion" oninput="autoCalculateCodes()" placeholder="5.2.2">
-                </div>
-                <div class="form-group" id="groupMinVersion">
-                    <label>Versión Mínima (Ej. 5.2.2)</label>
-                    <input type="text" id="inputMinVersion" oninput="autoCalculateCodes()" placeholder="5.2.2">
-                </div>
+            <div class="form-group" id="groupVersion">
+                <label>Versión (Ej. 5.2.2)</label>
+                <input type="text" id="inputVersion" oninput="autoCalculateCodes()" placeholder="5.2.2">
+            </div>
+
+            <div class="form-group" id="groupMinVersion">
+                <label>Versión Mínima (Ej. 5.2.2)</label>
+                <input type="text" id="inputMinVersion" oninput="autoCalculateCodes()" placeholder="5.2.2">
             </div>
 
             <!-- Campos Ocultos para version_code y min-version_code -->
