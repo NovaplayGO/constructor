@@ -58,10 +58,10 @@
         .auth-card { width: 400px; padding: 40px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.8); text-align: center; }
         .auth-card h2 { font-size: 24px; font-weight: 900; margin-bottom: 8px; }
         .auth-card p { color: var(--text-muted); font-size: 13px; margin-bottom: 25px; }
-        .form-group { text-align: left; margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+        .form-group { text-align: left; margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 4px; font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 14px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 13px; font-family: inherit; }
-        .form-group textarea { height: 110px; resize: vertical; font-family: monospace; }
+        .form-group textarea { height: 95px; resize: vertical; font-family: monospace; }
         .btn-primary { width: 100%; background: var(--primary); color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 900; font-size: 14px; cursor: pointer; transition: 0.2s; }
         .btn-primary:hover { background: var(--primary-hover); }
         .status { margin-top: 15px; font-size: 13px; font-weight: 700; }
@@ -142,11 +142,12 @@
             <h3><i class="fas fa-edit" style="color:var(--primary)"></i> Configuración de Versión y Changelog</h3>
 
             <div class="form-group">
-                <label>Seleccionar Archivo JSON</label>
-                <select id="jsonFileSelect" onchange="loadJsonData()" class="select-variant" style="padding: 10px;">
-                    <option value="updatestable.json">NovaPlay Estable (updatestable.json)</option>
-                    <option value="updatebeta.json">NovaPlay Beta (updatebeta.json)</option>
-                    <option value="ms_aux/updateplay.json">KillerPlay (json/ms_aux/updateplay.json)</option>
+                <label>Aplicación</label>
+                <select id="appSelect" onchange="loadAppData()" class="select-variant" style="padding: 10px;">
+                    <option value="updatestable">NovaPlay Estable</option>
+                    <option value="updatebeta">NovaPlay Beta</option>
+                    <option value="panelupdater">NovaPanel</option>
+                    <option value="updateplay">KillerPlay</option>
                 </select>
             </div>
 
@@ -155,13 +156,13 @@
                     <label>Versión (Ej. 5.2.2)</label>
                     <input type="text" id="inputVersion" oninput="autoCalculateCodes()" placeholder="5.2.2">
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="groupMinVersion">
                     <label>Versión Mínima (Ej. 5.2.2)</label>
                     <input type="text" id="inputMinVersion" oninput="autoCalculateCodes()" placeholder="5.2.2">
                 </div>
             </div>
 
-            <!-- Campos Ocultos (se calculan y envían automáticamente sin ocupar espacio) -->
+            <!-- Campos Ocultos para version_code y min-version_code -->
             <input type="hidden" id="inputVersionCode">
             <input type="hidden" id="inputMinVersionCode">
 
@@ -170,13 +171,13 @@
                 <input type="text" id="inputTexto" placeholder="ACTUALIZACION OPCIONAL">
             </div>
 
-            <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; background: var(--input-bg); padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border);">
-                <label style="margin: 0;">Forzar Actualización (force_update)</label>
-                <button type="button" id="btnToggleForce" class="btn-action secondary" style="width: 120px; padding: 8px; font-size: 12px;" onclick="toggleForceUpdate()">APAGADO</button>
+            <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; background: var(--input-bg); padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);">
+                <label style="margin: 0;">Forzar Actualización:</label>
+                <button type="button" id="btnToggleForce" class="btn-action secondary" style="width: 90px; padding: 6px; font-size: 12px;" onclick="toggleForceUpdate()">NO</button>
             </div>
 
             <div class="form-group">
-                <label>Changelog (un cambio por línea)</label>
+                <label>Cambios (un cambio por línea)</label>
                 <textarea id="textareaChangelog" placeholder="Escribe los cambios..."></textarea>
             </div>
 
@@ -304,6 +305,13 @@
         let currentJsonData = {};
         let forceUpdateVal = false;
 
+        const appConfigMap = {
+            "updatestable": { file: "updatestable.json", hasMin: true, hasTexto: true },
+            "updatebeta": { file: "updatebeta.json", hasMin: true, hasTexto: false },
+            "panelupdater": { file: "panelupdater.json", hasMin: false, hasTexto: false },
+            "updateplay": { file: "ms_aux/updateplay.json", hasMin: false, hasTexto: false }
+        };
+
         window.addEventListener('DOMContentLoaded', () => {
             if (sessionToken) {
                 document.getElementById('auth-view').style.display = 'none';
@@ -343,7 +351,7 @@
                 const major = parseInt(parts[0]) || 0;
                 const minor = parseInt(parts[1]) || 0;
                 const patch = parseInt(parts[2]) || 0;
-                return major * 100 + minor * 10 + patch; // Ej: 5.2.2 -> 522
+                return major * 100 + minor * 10 + patch;
             }
             return parseInt(verStr.replace(/\D/g, '')) || 522;
         }
@@ -359,11 +367,11 @@
             forceUpdateVal = !forceUpdateVal;
             const btn = document.getElementById('btnToggleForce');
             if (forceUpdateVal) {
-                btn.innerText = "ENCENDIDO";
+                btn.innerText = "SI";
                 btn.style.background = "var(--primary)";
                 btn.style.color = "#fff";
             } else {
-                btn.innerText = "APAGADO";
+                btn.innerText = "NO";
                 btn.style.background = "var(--input-bg)";
                 btn.style.color = "#fff";
             }
@@ -379,37 +387,41 @@
         }
 
         async function loadJsonData() {
-            const file = document.getElementById('jsonFileSelect').value;
+            const appKey = document.getElementById('appSelect').value;
+            const cfg = appConfigMap[appKey];
+
             const groupTexto = document.getElementById('groupTexto');
-            if (file === 'updatestable.json') {
-                groupTexto.style.display = 'block';
-            } else {
-                groupTexto.style.display = 'none';
-            }
+            const groupMinVersion = document.getElementById('groupMinVersion');
+
+            groupTexto.style.display = cfg.hasTexto ? 'block' : 'none';
+            groupMinVersion.style.display = cfg.hasMin ? 'block' : 'none';
 
             try {
-                const res = await fetch(`https://raw.githubusercontent.com/NovaplayGO/updater/main/json/${file}?` + new Date().getTime());
+                const res = await fetch(`https://raw.githubusercontent.com/NovaplayGO/updater/main/json/${cfg.file}?` + new Date().getTime());
                 const data = await res.json();
                 currentJsonData = data;
 
                 document.getElementById('inputVersion').value = data.version || '';
                 document.getElementById('inputVersionCode').value = data.version_code || versionToCode(data.version || '5.2.2');
-                document.getElementById('inputMinVersion').value = data['min-version'] || '';
-                document.getElementById('inputMinVersionCode').value = data['min-version_code'] || versionToCode(data['min-version'] || '5.2.2');
+
+                if (cfg.hasMin) {
+                    document.getElementById('inputMinVersion').value = data['min-version'] || '';
+                    document.getElementById('inputMinVersionCode').value = data['min-version_code'] || versionToCode(data['min-version'] || '5.2.2');
+                }
 
                 forceUpdateVal = !!data.force_update;
                 const btn = document.getElementById('btnToggleForce');
                 if (forceUpdateVal) {
-                    btn.innerText = "ENCENDIDO";
+                    btn.innerText = "SI";
                     btn.style.background = "var(--primary)";
                     btn.style.color = "#fff";
                 } else {
-                    btn.innerText = "APAGADO";
+                    btn.innerText = "NO";
                     btn.style.background = "var(--input-bg)";
                     btn.style.color = "#fff";
                 }
 
-                if (file === 'updatestable.json') {
+                if (cfg.hasTexto) {
                     document.getElementById('inputTexto').value = data.texto || 'ACTUALIZACION OPCIONAL';
                 }
 
@@ -421,30 +433,34 @@
         }
 
         async function saveJsonData() {
-            const file = document.getElementById('jsonFileSelect').value;
+            const appKey = document.getElementById('appSelect').value;
+            const cfg = appConfigMap[appKey];
+
             const ver = document.getElementById('inputVersion').value.trim();
             const verCode = parseInt(document.getElementById('inputVersionCode').value) || versionToCode(ver);
-            const minVer = document.getElementById('inputMinVersion').value.trim();
-            const minVerCode = parseInt(document.getElementById('inputMinVersionCode').value) || versionToCode(minVer);
+            const minVer = cfg.hasMin ? document.getElementById('inputMinVersion').value.trim() : null;
+            const minVerCode = cfg.hasMin ? (parseInt(document.getElementById('inputMinVersionCode').value) || versionToCode(minVer)) : null;
             const changelogText = document.getElementById('textareaChangelog').value;
             const changelogArr = changelogText.split('\n').map(s => s.trim()).filter(s => s.length > 0);
 
             let updatedObj = {
                 version: ver,
                 version_code: verCode,
-                "min-version": minVer,
-                "min-version_code": minVerCode,
                 size: currentJsonData.size || "18.5 MB",
                 force_update: forceUpdateVal,
-                apk_url: currentJsonData.apk_url || `https://github.com/NovaplayGO/updater/raw/main/apks/${file.replace('ms_aux/', '')}`,
+                apk_url: currentJsonData.apk_url || `https://github.com/NovaplayGO/updater/raw/main/apks/${cfg.file.replace('ms_aux/', '')}`,
                 changelog: changelogArr,
                 date: new Date().toISOString()
             };
 
-            if (file === 'updatestable.json') {
+            if (cfg.hasMin) {
+                updatedObj["min-version"] = minVer;
+                updatedObj["min-version_code"] = minVerCode;
+            }
+
+            if (cfg.hasTexto) {
                 updatedObj.texto = document.getElementById('inputTexto').value.trim() || 'ACTUALIZACION OPCIONAL';
             }
-            // updatebeta.json y updateplay.json no llevan "texto"
 
             showToast('Guardando cambios en el JSON...', 'success');
             try {
@@ -456,7 +472,7 @@
                     },
                     body: JSON.stringify({
                         action: 'update_json',
-                        file: file,
+                        file: cfg.file,
                         content: updatedObj
                     })
                 });
