@@ -223,7 +223,7 @@
             </a>
             <div class="nav-links">
                 <a href="https://novaplaygo.github.io/">INICIO</a>
-                <button class="btn-action" style="padding: 8px 16px; font-size: 12px;" onclick="openJsonModal()"><i class="fas.fa-file-code"></i> Gestionar JSON & Changelog</button>
+                <button class="btn-action" style="padding: 8px 16px; font-size: 12px;" onclick="openJsonModal()"><i class="fas fa-file-code"></i> Gestionar JSON & Changelog</button>
                 <div class="admin-menu" id="adminMenu" style="display: flex;">
                     <button class="btn-admin"><i class="fas fa-user-shield"></i> PANEL</button>
                     <div class="dropdown-content">
@@ -391,7 +391,7 @@
                 document.getElementById('inputVersionCode').value = data.version_code || versionToCode(data.version || '5.2.2');
                 document.getElementById('inputMinVersion').value = data['min-version'] || '';
                 document.getElementById('inputMinVersionCode').value = data['min-version_code'] || versionToCode(data['min-version'] || '5.2.2');
-                document.getElementById('selectForceUpdate.value') = data.force_update ? 'true' : 'false';
+                document.getElementById('selectForceUpdate').value = data.force_update ? 'true' : 'false';
 
                 if (file === 'updatestable.json') {
                     document.getElementById('inputTexto').value = data.texto || 'ACTUALIZACION OPCIONAL';
@@ -429,14 +429,32 @@
             if (file === 'updatestable.json') {
                 updatedObj.texto = document.getElementById('inputTexto').value.trim() || 'ACTUALIZACION OPCIONAL';
             }
-            // Nota: updatebeta.json y updateplay.json NO contendrán el campo "texto".
+            // Si es updatebeta.json o updateplay.json, NO se incluye la propiedad "texto".
 
             showToast('Guardando cambios en el JSON...', 'success');
-            // Aquí se envía al backend o workflow para actualizar el archivo JSON en updater
-            setTimeout(() => {
-                showToast('¡JSON actualizado y publicado con éxito!');
-                closeJsonModal();
-            }, 1500);
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionToken}`
+                    },
+                    body: JSON.stringify({
+                        action: 'update_json',
+                        file: file,
+                        content: updatedObj
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('¡JSON actualizado y publicado en Updater con éxito!');
+                    closeJsonModal();
+                } else {
+                    showToast(data.error || 'Error al actualizar el JSON.', 'error');
+                }
+            } catch(e) {
+                showToast('Error de conexión con el backend.', 'error');
+            }
         }
 
         async function openLogsModal(runId, appName) {
