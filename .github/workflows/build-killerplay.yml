@@ -41,11 +41,11 @@ jobs:
 
       - name: Copy and Push APK to updater
         run: |
-          mkdir -p updater/apks
-          cp killerplay/build/outputs/apk/release/killerplay-release.apk updater/apks/killerplay.apk
+          mkdir -p updater/json/ms_aux
+          cp killerplay/build/outputs/apk/release/killerplay-release.apk updater/json/ms_aux/killerplay.apk
           cd updater
           git config --global user.name "NovaPlay Bot"
           git config --global user.email "bot@novaplay.py"
-          git add apks/killerplay.apk
+          git add json/ms_aux/killerplay.apk
           git pull origin main --rebase || true
-          git diff --quiet && git diff --staged --quiet || (git commit -m "APK Release generado desde Constructor [skip ci]" && git push origin main)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto: Actualizar killerplay.apk en json/ms_aux desde el Constructor [skip ci]" && git push origin main)
