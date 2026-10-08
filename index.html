@@ -452,7 +452,7 @@
                 updatedObj["min-version_code"] = minVerCode;
             }
 
-            updatedObj.size = currentJsonData.size || "18.5 MB";
+            updatedObj.size = currentJsonData.size || "";
             updatedObj.force_update = forceUpdateVal;
             updatedObj.apk_url = currentJsonData.apk_url || `https://github.com/NovaplayGO/updater/raw/main/apks/${cfg.file.replace('ms_aux/', '')}`;
 
