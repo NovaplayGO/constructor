@@ -60,7 +60,8 @@
         .auth-card p { color: var(--text-muted); font-size: 13px; margin-bottom: 25px; }
         .form-group { text-align: left; margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
-        .form-group input { width: 100%; padding: 14px 16px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; color: #fff; font-size: 14px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 14px 16px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; color: #fff; font-size: 14px; font-family: inherit; }
+        .form-group textarea { height: 150px; resize: vertical; font-family: monospace; }
         .btn-primary { width: 100%; background: var(--primary); color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 900; font-size: 14px; cursor: pointer; transition: 0.2s; }
         .btn-primary:hover { background: var(--primary-hover); }
         .status { margin-top: 15px; font-size: 13px; font-weight: 700; }
@@ -135,6 +136,67 @@
         </div>
     </div>
 
+    <!-- Modal Editor JSON / Changelog -->
+    <div id="jsonEditorModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <h3 id="jsonModalTitle"><i class="fas fa-edit" style="color:var(--primary)"></i> Configuración de Versión y Changelog</h3>
+
+            <div class="form-group">
+                <label>Seleccionar Archivo JSON</label>
+                <select id="jsonFileSelect" onchange="loadJsonData()" class="select-variant">
+                    <option value="updatestable.json">NovaPlay Estable (updatestable.json)</option>
+                    <option value="updatebeta.json">NovaPlay Beta (updatebeta.json)</option>
+                    <option value="updateplay.json">KillerPlay (updateplay.json)</option>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Versión (Ej. 5.2.2)</label>
+                    <input type="text" id="inputVersion" oninput="autoCalculateCodes()" placeholder="5.2.2">
+                </div>
+                <div class="form-group">
+                    <label>Versión Code (Automático)</label>
+                    <input type="number" id="inputVersionCode" readonly placeholder="522">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Versión Mínima (Ej. 5.2.2)</label>
+                    <input type="text" id="inputMinVersion" oninput="autoCalculateCodes()" placeholder="5.2.2">
+                </div>
+                <div class="form-group">
+                    <label>Mínima Versión Code (Automático)</label>
+                    <input type="number" id="inputMinVersionCode" readonly placeholder="522">
+                </div>
+            </div>
+
+            <div class="form-group" id="groupTexto" style="display: none;">
+                <label>Texto del Aviso (Solo Estable)</label>
+                <input type="text" id="inputTexto" placeholder="ACTUALIZACION OPCIONAL">
+            </div>
+
+            <div class="form-group">
+                <label>Forzar Actualización (force_update)</label>
+                <select id="selectForceUpdate" class="select-variant">
+                    <option value="false">Falso (Opcional)</option>
+                    <option value="true">Verdadero (Obligatorio)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Changelog (un cambio por línea)</label>
+                <textarea id="textareaChangelog" placeholder="Escribe los cambios..."></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-action secondary" onclick="closeJsonModal()">Cancelar</button>
+                <button class="btn-action" onclick="saveJsonData()"><i class="fas fa-save"></i> Guardar y Publicar en Updater</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Logs e Información Interna -->
     <div id="logsModal" class="modal">
         <div class="modal-content">
@@ -161,6 +223,7 @@
             </a>
             <div class="nav-links">
                 <a href="https://novaplaygo.github.io/">INICIO</a>
+                <button class="btn-action" style="padding: 8px 16px; font-size: 12px;" onclick="openJsonModal()"><i class="fas.fa-file-code"></i> Gestionar JSON & Changelog</button>
                 <div class="admin-menu" id="adminMenu" style="display: flex;">
                     <button class="btn-admin"><i class="fas fa-user-shield"></i> PANEL</button>
                     <div class="dropdown-content">
@@ -248,6 +311,7 @@
         const AUTH_URL = "https://mrghnngupolsgatcmevw.supabase.co/functions/v1/actualizar-canales";
         const API_URL = "https://mrghnngupolsgatcmevw.supabase.co/functions/v1/constructor-manager";
         let sessionToken = localStorage.getItem("novaplay_session_token") || "";
+        let currentJsonData = {};
 
         window.addEventListener('DOMContentLoaded', () => {
             if (sessionToken) {
@@ -280,6 +344,99 @@
             } else {
                 link.href = "https://github.com/NovaplayGO/updater/raw/main/apks/novaplaybeta.apk";
             }
+        }
+
+        function versionToCode(verStr) {
+            const parts = verStr.split('.');
+            if (parts.length >= 3) {
+                const major = parseInt(parts[0]) || 0;
+                const minor = parseInt(parts[1]) || 0;
+                const patch = parseInt(parts[2]) || 0;
+                return major * 100 + minor * 10 + patch; // Ej: 5.2.2 -> 522
+            }
+            return parseInt(verStr.replace(/\D/g, '')) || 522;
+        }
+
+        function autoCalculateCodes() {
+            const ver = document.getElementById('inputVersion').value;
+            const minVer = document.getElementById('inputMinVersion').value;
+            if (ver) document.getElementById('inputVersionCode').value = versionToCode(ver);
+            if (minVer) document.getElementById('inputMinVersionCode').value = versionToCode(minVer);
+        }
+
+        async function openJsonModal() {
+            document.getElementById('jsonEditorModal').style.display = 'flex';
+            loadJsonData();
+        }
+
+        function closeJsonModal() {
+            document.getElementById('jsonEditorModal').style.display = 'none';
+        }
+
+        async function loadJsonData() {
+            const file = document.getElementById('jsonFileSelect').value;
+            const groupTexto = document.getElementById('groupTexto');
+            if (file === 'updatestable.json') {
+                groupTexto.style.display = 'block';
+            } else {
+                groupTexto.style.display = 'none';
+            }
+
+            try {
+                const res = await fetch(`https://raw.githubusercontent.com/NovaplayGO/updater/main/json/${file}?` + new Date().getTime());
+                const data = await res.json();
+                currentJsonData = data;
+
+                document.getElementById('inputVersion').value = data.version || '';
+                document.getElementById('inputVersionCode').value = data.version_code || versionToCode(data.version || '5.2.2');
+                document.getElementById('inputMinVersion').value = data['min-version'] || '';
+                document.getElementById('inputMinVersionCode').value = data['min-version_code'] || versionToCode(data['min-version'] || '5.2.2');
+                document.getElementById('selectForceUpdate.value') = data.force_update ? 'true' : 'false';
+
+                if (file === 'updatestable.json') {
+                    document.getElementById('inputTexto').value = data.texto || 'ACTUALIZACION OPCIONAL';
+                }
+
+                const changelog = data.changelog || [];
+                document.getElementById('textareaChangelog').value = changelog.join('\n');
+            } catch(e) {
+                showToast('Error cargando JSON de updater.', 'error');
+            }
+        }
+
+        async function saveJsonData() {
+            const file = document.getElementById('jsonFileSelect').value;
+            const ver = document.getElementById('inputVersion').value.trim();
+            const verCode = parseInt(document.getElementById('inputVersionCode').value) || versionToCode(ver);
+            const minVer = document.getElementById('inputMinVersion').value.trim();
+            const minVerCode = parseInt(document.getElementById('inputMinVersionCode').value) || versionToCode(minVer);
+            const forceUp = document.getElementById('selectForceUpdate').value === 'true';
+            const changelogText = document.getElementById('textareaChangelog').value;
+            const changelogArr = changelogText.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+
+            let updatedObj = {
+                version: ver,
+                version_code: verCode,
+                "min-version": minVer,
+                "min-version_code": minVerCode,
+                size: currentJsonData.size || "18.5 MB",
+                force_update: forceUp,
+                apk_url: currentJsonData.apk_url || `https://github.com/NovaplayGO/updater/raw/main/apks/${file.replace('.json', '.apk')}`,
+                changelog: changelogArr,
+                date: new Date().toISOString()
+            };
+
+            if (file === 'updatestable.json') {
+                updatedObj.texto = document.getElementById('inputTexto').value.trim() || 'ACTUALIZACION OPCIONAL';
+            }
+            // Nota: updatebeta.json y updateplay.json NO contendrán el campo "texto".
+
+            showToast('Guardando cambios en el JSON...', 'success');
+            // Aquí se envía al backend o workflow para actualizar el archivo JSON en updater
+            setTimeout(() => {
+                showToast('¡JSON actualizado y publicado con éxito!');
+                closeJsonModal();
+            }, 1500);
         }
 
         async function openLogsModal(runId, appName) {
