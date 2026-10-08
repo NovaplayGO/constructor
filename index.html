@@ -360,22 +360,21 @@
             const repos = ['build-novaplay.yml', 'build-novapanel.yml', 'build-killerplay.yml'];
             const names = ['novaplay', 'novapanel', 'killerplay'];
 
-            for (let i = 0; i < repos.length; i++) {
-                const badge = document.getElementById(`badge-${names[i]}`);
-                const info = document.getElementById(`info-${names[i]}`);
-                try {
-                    const res = await fetch(`https://api.github.com/repos/NovaplayGO/constructor/actions/workflows/${repos[i]}/runs?per_page=1`, {
-                        headers: { 'Accept': 'application/vnd.github+json' }
-                    });
-                    if (!res.ok) {
-                        badge.className = "status-badge idle";
-                        badge.innerText = "ESPERANDO...";
-                        continue;
-                    }
-                    const data = await res.json();
-                    if (data.workflow_runs && data.workflow_runs.length > 0) {
-                        const run = data.workflow_runs[0];
+            try {
+                const res = await fetch(`https://api.github.com/repos/NovaplayGO/constructor/actions/runs?per_page=20`, {
+                    headers: { 'Accept': 'application/vnd.github+json' }
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data.workflow_runs) return;
 
+                for (let i = 0; i < repos.length; i++) {
+                    const badge = document.getElementById(`badge-${names[i]}`);
+                    const info = document.getElementById(`info-${names[i]}`);
+
+                    const run = data.workflow_runs.find(r => r.path && r.path.endsWith(repos[i]));
+
+                    if (run) {
                         let statusClass = 'idle';
                         let statusText = run.status;
                         if (run.status === 'completed') {
@@ -390,7 +389,7 @@
                         badge.innerText = statusText;
 
                         if (run.status !== 'completed') {
-                            info.innerHTML = `Estado: <span style="color:var(--warning)">${run.status}</span> • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Progreso en Vivo</span>`;
+                            info.innerHTML = `Estado: <span style="color:var(--warning)">${run.status}</span> • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Registros Internos</span>`;
                         } else {
                             info.innerHTML = `Última ejecución: ${new Date(run.updated_at).toLocaleTimeString()} • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Registros</span>`;
                         }
@@ -398,11 +397,8 @@
                         badge.className = "status-badge idle";
                         badge.innerText = "SIN EJECUCIONES";
                     }
-                } catch(e) {
-                    badge.className = "status-badge idle";
-                    badge.innerText = "ESPERANDO...";
                 }
-            }
+            } catch(e) {}
         }
 
         async function triggerWorkflow(workflowFile, name) {
