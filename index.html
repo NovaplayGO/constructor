@@ -58,10 +58,10 @@
         .auth-card { width: 400px; padding: 40px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.8); text-align: center; }
         .auth-card h2 { font-size: 24px; font-weight: 900; margin-bottom: 8px; }
         .auth-card p { color: var(--text-muted); font-size: 13px; margin-bottom: 25px; }
-        .form-group { text-align: left; margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 14px 16px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; color: #fff; font-size: 14px; font-family: inherit; }
-        .form-group textarea { height: 150px; resize: vertical; font-family: monospace; }
+        .form-group { text-align: left; margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 14px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 13px; font-family: inherit; }
+        .form-group textarea { height: 110px; resize: vertical; font-family: monospace; }
         .btn-primary { width: 100%; background: var(--primary); color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 900; font-size: 14px; cursor: pointer; transition: 0.2s; }
         .btn-primary:hover { background: var(--primary-hover); }
         .status { margin-top: 15px; font-size: 13px; font-weight: 700; }
@@ -101,14 +101,14 @@
         .run-info { font-size: 12px; color: var(--text-muted); margin-top: 8px; text-align: center; }
         .run-info span { color: var(--primary); font-weight: 700; cursor: pointer; text-decoration: underline; }
 
-        /* Modales */
+        /* Modales compactos y elegantes */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 30000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: var(--card-bg); border: 1px solid var(--border); width: 100%; max-width: 800px; border-radius: 24px; padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.9); }
-        .modal-content h3 { font-size: 20px; font-weight: 900; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+        .modal-content { background: var(--card-bg); border: 1px solid var(--border); width: 100%; max-width: 550px; border-radius: 20px; padding: 25px; box-shadow: 0 25px 50px rgba(0,0,0,0.9); }
+        .modal-content h3 { font-size: 18px; font-weight: 900; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; }
 
         /* Logs Viewer Modal */
-        .logs-pre { background: #000; color: #00ff88; font-family: monospace; font-size: 11px; padding: 15px; border-radius: 12px; max-height: 400px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 15px; border: 1px solid var(--border); }
+        .logs-pre { background: #000; color: #00ff88; font-family: monospace; font-size: 11px; padding: 15px; border-radius: 12px; max-height: 350px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 15px; border: 1px solid var(--border); }
 
         /* Toast / Banner Interno */
         #internalToast { position: fixed; bottom: 30px; right: 30px; background: var(--card-bg); border: 1px solid var(--border); color: #fff; padding: 15px 25px; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 40000; display: none; align-items: center; gap: 12px; font-size: 13px; font-weight: 700; }
@@ -136,53 +136,43 @@
         </div>
     </div>
 
-    <!-- Modal Editor JSON / Changelog -->
+    <!-- Modal Editor JSON / Changelog (Compacto M3 Expressive) -->
     <div id="jsonEditorModal" class="modal">
-        <div class="modal-content" style="max-width: 700px;">
-            <h3 id="jsonModalTitle"><i class="fas fa-edit" style="color:var(--primary)"></i> Configuración de Versión y Changelog</h3>
+        <div class="modal-content">
+            <h3><i class="fas fa-edit" style="color:var(--primary)"></i> Configuración de Versión y Changelog</h3>
 
             <div class="form-group">
                 <label>Seleccionar Archivo JSON</label>
-                <select id="jsonFileSelect" onchange="loadJsonData()" class="select-variant">
+                <select id="jsonFileSelect" onchange="loadJsonData()" class="select-variant" style="padding: 10px;">
                     <option value="updatestable.json">NovaPlay Estable (updatestable.json)</option>
                     <option value="updatebeta.json">NovaPlay Beta (updatebeta.json)</option>
-                    <option value="updateplay.json">KillerPlay (updateplay.json)</option>
+                    <option value="ms_aux/updateplay.json">KillerPlay (json/ms_aux/updateplay.json)</option>
                 </select>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <div class="form-group">
                     <label>Versión (Ej. 5.2.2)</label>
                     <input type="text" id="inputVersion" oninput="autoCalculateCodes()" placeholder="5.2.2">
                 </div>
                 <div class="form-group">
-                    <label>Versión Code (Automático)</label>
-                    <input type="number" id="inputVersionCode" readonly placeholder="522">
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div class="form-group">
                     <label>Versión Mínima (Ej. 5.2.2)</label>
                     <input type="text" id="inputMinVersion" oninput="autoCalculateCodes()" placeholder="5.2.2">
                 </div>
-                <div class="form-group">
-                    <label>Mínima Versión Code (Automático)</label>
-                    <input type="number" id="inputMinVersionCode" readonly placeholder="522">
-                </div>
             </div>
+
+            <!-- Campos Ocultos (se calculan y envían automáticamente sin ocupar espacio) -->
+            <input type="hidden" id="inputVersionCode">
+            <input type="hidden" id="inputMinVersionCode">
 
             <div class="form-group" id="groupTexto" style="display: none;">
                 <label>Texto del Aviso (Solo Estable)</label>
                 <input type="text" id="inputTexto" placeholder="ACTUALIZACION OPCIONAL">
             </div>
 
-            <div class="form-group">
-                <label>Forzar Actualización (force_update)</label>
-                <select id="selectForceUpdate" class="select-variant">
-                    <option value="false">Falso (Opcional)</option>
-                    <option value="true">Verdadero (Obligatorio)</option>
-                </select>
+            <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; background: var(--input-bg); padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border);">
+                <label style="margin: 0;">Forzar Actualización (force_update)</label>
+                <button type="button" id="btnToggleForce" class="btn-action secondary" style="width: 120px; padding: 8px; font-size: 12px;" onclick="toggleForceUpdate()">APAGADO</button>
             </div>
 
             <div class="form-group">
@@ -192,7 +182,7 @@
 
             <div class="modal-actions">
                 <button class="btn-action secondary" onclick="closeJsonModal()">Cancelar</button>
-                <button class="btn-action" onclick="saveJsonData()"><i class="fas fa-save"></i> Guardar y Publicar en Updater</button>
+                <button class="btn-action" onclick="saveJsonData()"><i class="fas fa-save"></i> Guardar y Publicar</button>
             </div>
         </div>
     </div>
@@ -312,6 +302,7 @@
         const API_URL = "https://mrghnngupolsgatcmevw.supabase.co/functions/v1/constructor-manager";
         let sessionToken = localStorage.getItem("novaplay_session_token") || "";
         let currentJsonData = {};
+        let forceUpdateVal = false;
 
         window.addEventListener('DOMContentLoaded', () => {
             if (sessionToken) {
@@ -364,6 +355,20 @@
             if (minVer) document.getElementById('inputMinVersionCode').value = versionToCode(minVer);
         }
 
+        function toggleForceUpdate() {
+            forceUpdateVal = !forceUpdateVal;
+            const btn = document.getElementById('btnToggleForce');
+            if (forceUpdateVal) {
+                btn.innerText = "ENCENDIDO";
+                btn.style.background = "var(--primary)";
+                btn.style.color = "#fff";
+            } else {
+                btn.innerText = "APAGADO";
+                btn.style.background = "var(--input-bg)";
+                btn.style.color = "#fff";
+            }
+        }
+
         async function openJsonModal() {
             document.getElementById('jsonEditorModal').style.display = 'flex';
             loadJsonData();
@@ -391,7 +396,18 @@
                 document.getElementById('inputVersionCode').value = data.version_code || versionToCode(data.version || '5.2.2');
                 document.getElementById('inputMinVersion').value = data['min-version'] || '';
                 document.getElementById('inputMinVersionCode').value = data['min-version_code'] || versionToCode(data['min-version'] || '5.2.2');
-                document.getElementById('selectForceUpdate').value = data.force_update ? 'true' : 'false';
+
+                forceUpdateVal = !!data.force_update;
+                const btn = document.getElementById('btnToggleForce');
+                if (forceUpdateVal) {
+                    btn.innerText = "ENCENDIDO";
+                    btn.style.background = "var(--primary)";
+                    btn.style.color = "#fff";
+                } else {
+                    btn.innerText = "APAGADO";
+                    btn.style.background = "var(--input-bg)";
+                    btn.style.color = "#fff";
+                }
 
                 if (file === 'updatestable.json') {
                     document.getElementById('inputTexto').value = data.texto || 'ACTUALIZACION OPCIONAL';
@@ -410,7 +426,6 @@
             const verCode = parseInt(document.getElementById('inputVersionCode').value) || versionToCode(ver);
             const minVer = document.getElementById('inputMinVersion').value.trim();
             const minVerCode = parseInt(document.getElementById('inputMinVersionCode').value) || versionToCode(minVer);
-            const forceUp = document.getElementById('selectForceUpdate').value === 'true';
             const changelogText = document.getElementById('textareaChangelog').value;
             const changelogArr = changelogText.split('\n').map(s => s.trim()).filter(s => s.length > 0);
 
@@ -420,8 +435,8 @@
                 "min-version": minVer,
                 "min-version_code": minVerCode,
                 size: currentJsonData.size || "18.5 MB",
-                force_update: forceUp,
-                apk_url: currentJsonData.apk_url || `https://github.com/NovaplayGO/updater/raw/main/apks/${file.replace('.json', '.apk')}`,
+                force_update: forceUpdateVal,
+                apk_url: currentJsonData.apk_url || `https://github.com/NovaplayGO/updater/raw/main/apks/${file.replace('ms_aux/', '')}`,
                 changelog: changelogArr,
                 date: new Date().toISOString()
             };
@@ -429,7 +444,7 @@
             if (file === 'updatestable.json') {
                 updatedObj.texto = document.getElementById('inputTexto').value.trim() || 'ACTUALIZACION OPCIONAL';
             }
-            // Si es updatebeta.json o updateplay.json, NO se incluye la propiedad "texto".
+            // updatebeta.json y updateplay.json no llevan "texto"
 
             showToast('Guardando cambios en el JSON...', 'success');
             try {
