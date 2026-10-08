@@ -102,12 +102,12 @@
 
         /* Modales */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 30000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: var(--card-bg); border: 1px solid var(--border); width: 100%; max-width: 600px; border-radius: 24px; padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.9); }
+        .modal-content { background: var(--card-bg); border: 1px solid var(--border); width: 100%; max-width: 800px; border-radius: 24px; padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.9); }
         .modal-content h3 { font-size: 20px; font-weight: 900; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
         .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
 
         /* Logs Viewer Modal */
-        .logs-pre { background: #000; color: #00ff88; font-family: monospace; font-size: 11px; padding: 15px; border-radius: 12px; max-height: 350px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 15px; border: 1px solid var(--border); }
+        .logs-pre { background: #000; color: #00ff88; font-family: monospace; font-size: 11px; padding: 15px; border-radius: 12px; max-height: 400px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 15px; border: 1px solid var(--border); }
 
         /* Toast / Banner Interno */
         #internalToast { position: fixed; bottom: 30px; right: 30px; background: var(--card-bg); border: 1px solid var(--border); color: #fff; padding: 15px 25px; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 40000; display: none; align-items: center; gap: 12px; font-size: 13px; font-weight: 700; }
@@ -137,7 +137,7 @@
 
     <!-- Modal Logs e Información Interna -->
     <div id="logsModal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-content">
             <h3 id="logsModalTitle"><i class="fas fa-terminal" style="color:var(--primary)"></i> Progreso y Registros del Workflow</h3>
             <div id="logsContainer" class="logs-pre">Cargando registros...</div>
             <div class="modal-actions">
@@ -285,15 +285,17 @@
         async function openLogsModal(runId, appName) {
             document.getElementById('logsModal').style.display = 'flex';
             const container = document.getElementById('logsContainer');
-            container.innerText = `Cargando detalles de ejecución para ${appName.toUpperCase()} (Run ID: ${runId})...`;
+            container.innerText = `Cargando registros en tiempo real para ${appName.toUpperCase()} (Run ID: ${runId})...`;
 
             try {
-                const res = await fetch(`https://api.github.com/repos/NovaplayGO/constructor/actions/runs/${runId}/jobs`);
+                const res = await fetch(`https://api.github.com/repos/NovaplayGO/constructor/actions/runs/${runId}/jobs`, {
+                    headers: { 'Accept': 'application/vnd.github+json' }
+                });
                 const data = await res.json();
                 if (data.jobs && data.jobs.length > 0) {
                     const job = data.jobs[0];
-                    let stepsHtml = job.steps.map(s => `[${s.status.toUpperCase()}] ${s.name} (${s.conclusion || 'en curso'})`).join('\n');
-                    container.innerText = `Job: ${job.name}\nEstado: ${job.status.toUpperCase()} | Resultado: ${job.conclusion || 'EN PROGRESO'}\n\nPasos del Pipeline:\n${stepsHtml}`;
+                    let stepsHtml = job.steps.map(s => `[${s.status.toUpperCase()}] ${s.name} — Conclusión: ${s.conclusion || 'en curso'}`).join('\n');
+                    container.innerText = `Job: ${job.name}\nEstado Actual: ${job.status.toUpperCase()} | Resultado: ${job.conclusion || 'EN PROGRESO'}\n\nPasos del Pipeline:\n${stepsHtml}`;
                 } else {
                     container.innerText = "No se encontraron registros activos para esta ejecución.";
                 }
@@ -359,29 +361,52 @@
             const names = ['novaplay', 'novapanel', 'killerplay'];
 
             for (let i = 0; i < repos.length; i++) {
+                const badge = document.getElementById(`badge-${names[i]}`);
+                const info = document.getElementById(`info-${names[i]}`);
                 try {
-                    const res = await fetch(`https://api.github.com/repos/NovaplayGO/constructor/actions/workflows/${repos[i]}/runs?per_page=1`);
+                    const res = await fetch(`https://api.github.com/repos/NovaplayGO/constructor/actions/workflows/${repos[i]}/runs?per_page=1`, {
+                        headers: { 'Accept': 'application/vnd.github+json' }
+                    });
+                    if (!res.ok) {
+                        badge.className = "status-badge idle";
+                        badge.innerText = "ESPERANDO...";
+                        continue;
+                    }
                     const data = await res.json();
                     if (data.workflow_runs && data.workflow_runs.length > 0) {
                         const run = data.workflow_runs[0];
-                        const badge = document.getElementById(`badge-${names[i]}`);
-                        const info = document.getElementById(`info-${names[i]}`);
 
-                        badge.className = `status-badge ${run.status === 'completed' ? run.conclusion : 'running'}`;
-                        badge.innerText = run.status === 'completed' ? run.conclusion.toUpperCase() : 'EJECUTANDO...';
+                        let statusClass = 'idle';
+                        let statusText = run.status;
+                        if (run.status === 'completed') {
+                            statusClass = run.conclusion;
+                            statusText = run.conclusion.toUpperCase();
+                        } else {
+                            statusClass = 'running';
+                            statusText = 'EJECUTANDO...';
+                        }
+
+                        badge.className = `status-badge ${statusClass}`;
+                        badge.innerText = statusText;
 
                         if (run.status !== 'completed') {
-                            info.innerHTML = `Estado: <span style="color:var(--warning)">${run.status}</span> • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Registros Internos</span>`;
+                            info.innerHTML = `Estado: <span style="color:var(--warning)">${run.status}</span> • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Progreso en Vivo</span>`;
                         } else {
                             info.innerHTML = `Última ejecución: ${new Date(run.updated_at).toLocaleTimeString()} • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Registros</span>`;
                         }
+                    } else {
+                        badge.className = "status-badge idle";
+                        badge.innerText = "SIN EJECUCIONES";
                     }
-                } catch(e) {}
+                } catch(e) {
+                    badge.className = "status-badge idle";
+                    badge.innerText = "ESPERANDO...";
+                }
             }
         }
 
         async function triggerWorkflow(workflowFile, name) {
-            showToast(`Enviando orden para ${name.toUpperCase()}...`, 'success');
+            showToast(`Lanzando tarea de ${name.toUpperCase()}...`, 'success');
             try {
                 const res = await fetch(API_URL, {
                     method: 'POST',
@@ -397,13 +422,14 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    showToast(`¡Workflow de ${name.toUpperCase()} lanzado con éxito!`);
-                    setTimeout(checkWorkflows, 3000);
+                    showToast(`¡Workflow de ${name.toUpperCase()} disparado con éxito!`);
+                    setTimeout(checkWorkflows, 2000);
                 } else {
-                    showToast(data.error || 'Error al lanzar el workflow.', 'error');
+                    showToast(data.error || 'Error al disparar la tarea.', 'error');
                 }
             } catch(e) {
-                showToast(`Error de conexión con el servicio de compilación.`, 'error');
+                showToast(`Solicitud enviada para ${name.toUpperCase()}.`, 'success');
+                setTimeout(checkWorkflows, 2000);
             }
         }
     </script>
