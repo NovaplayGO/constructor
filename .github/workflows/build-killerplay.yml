@@ -39,13 +39,35 @@ jobs:
           token: ${{ secrets.GH_PAT || github.token }}
           path: updater
 
-      - name: Copy and Push APK to updater
+      - name: Copy APK and Update JSON metadata
         run: |
           mkdir -p updater/json/ms_aux
           cp killerplay/build/outputs/apk/release/killerplay-release.apk updater/json/ms_aux/killerplay.apk
+          
           cd updater
+          python3 -c "
+          import json, os
+          json_file = 'json/updateplay.json'
+          apk_path = 'json/ms_aux/killerplay.apk'
+          
+          if os.path.exists(apk_path):
+              size_bytes = os.path.getsize(apk_path)
+              size_mb = f'{size_bytes / (1024*1024):.1f} MB'
+              
+              if os.path.exists(json_file):
+                  with open(json_file, 'r', encoding='utf-8') as f:
+                      data = json.load(f)
+              else:
+                  data = {}
+              
+              data['size'] = size_mb
+              
+              with open(json_file, 'w', encoding='utf-8') as f:
+                  json.dump(data, f, indent=4, ensure_ascii=False)
+          "
+          
           git config --global user.name "NovaPlay Bot"
           git config --global user.email "bot@novaplay.py"
-          git add json/ms_aux/killerplay.apk
+          git add json/ms_aux/killerplay.apk json/
           git pull origin main --rebase || true
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto: Actualizar killerplay.apk en json/ms_aux desde el Constructor [skip ci]" && git push origin main)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "APK Release generado desde Constructor [skip ci]" && git push origin main)
