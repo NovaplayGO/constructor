@@ -189,7 +189,7 @@
                 <div>
                     <div class="card-header">
                         <div class="card-title"><i class="fas fa-play-circle"></i> NovaPlay</div>
-                        <span id="badge-novaplay" class="status-badge idle">VERIFICANDO...</span>
+                        <span id="badge-novaplay" class="status-badge idle">LISTO</span>
                     </div>
                     <div class="card-body">
                         Reproductor principal para Android y Smart TV con soporte Flow y EPG avanzado.
@@ -211,7 +211,7 @@
                 <div>
                     <div class="card-header">
                         <div class="card-title"><i class="fas fa-chart-line"></i> NovaPanel</div>
-                        <span id="badge-novapanel" class="status-badge idle">VERIFICANDO...</span>
+                        <span id="badge-novapanel" class="status-badge idle">LISTO</span>
                     </div>
                     <div class="card-body">
                         Panel de control administrativo móvil y web para la gestión de señales y usuarios.
@@ -229,7 +229,7 @@
                 <div>
                     <div class="card-header">
                         <div class="card-title"><i class="fas fa-tv"></i> KillerPlay</div>
-                        <span id="badge-killerplay" class="status-badge idle">VERIFICANDO...</span>
+                        <span id="badge-killerplay" class="status-badge idle">LISTO</span>
                     </div>
                     <div class="card-body">
                         Cliente alternativo de streaming con motor de resguardo de redirección.
@@ -294,8 +294,8 @@
                 const data = await res.json();
                 if (data.jobs && data.jobs.length > 0) {
                     const job = data.jobs[0];
-                    let stepsHtml = job.steps.map(s => `[${s.status.toUpperCase()}] ${s.name} — Conclusión: ${s.conclusion || 'en curso'}`).join('\n');
-                    container.innerText = `Job: ${job.name}\nEstado Actual: ${job.status.toUpperCase()} | Resultado: ${job.conclusion || 'EN PROGRESO'}\n\nPasos del Pipeline:\n${stepsHtml}`;
+                    let stepsHtml = job.steps.map(s => `[${s.status.toUpperCase()}] ${s.name} — Resultado: ${s.conclusion || 'en curso'}`).join('\n');
+                    container.innerText = `Job: ${job.name}\nEstado: ${job.status.toUpperCase()} | Resultado: ${job.conclusion || 'EN PROGRESO'}\n\nPasos del Pipeline:\n${stepsHtml}`;
                 } else {
                     container.innerText = "No se encontraron registros activos para esta ejecución.";
                 }
@@ -376,7 +376,7 @@
 
                     if (run) {
                         let statusClass = 'idle';
-                        let statusText = run.status;
+                        let statusText = 'LISTO';
                         if (run.status === 'completed') {
                             statusClass = run.conclusion;
                             statusText = run.conclusion.toUpperCase();
@@ -395,7 +395,7 @@
                         }
                     } else {
                         badge.className = "status-badge idle";
-                        badge.innerText = "SIN EJECUCIONES";
+                        badge.innerText = "LISTO";
                     }
                 }
             } catch(e) {}
