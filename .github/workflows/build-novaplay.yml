@@ -90,4 +90,41 @@ jobs:
           git config --global user.email "bot@novaplay.py"
           git add apks/$APK_NAME json/
           git pull origin main --rebase || true
-          git diff --quiet && git diff --staged --quiet || (git commit -m "APK Release generado desde Constructor [skip ci]" && git push origin main)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "ACTUALIZADO DESDE CONSTRUCTOR [skip ci]" && git push origin main)
+
+      - name: Checkout NovaApps repository and Sync app_data.json
+        uses: actions/checkout@v4
+        with:
+          repository: 'NovaplayGO/NovaApps'
+          token: ${{ secrets.GH_PAT || github.token }}
+          path: novaapps
+
+      - name: Update NovaApps app_data.json
+        run: |
+          cd novaapps
+          python3 -c "
+          import json, os
+          try:
+              with open('../updater/json/updatestable.json', 'r', encoding='utf-8') as f:
+                  stable = json.load(f)
+              with open('../updater/json/updatebeta.json', 'r', encoding='utf-8') as f:
+                  beta = json.load(f)
+              with open('../updater/json/ms_aux/updateplay.json', 'r', encoding='utf-8') as f:
+                  killer = json.load(f)
+              
+              app_data = {
+                  'stable': {'version': stable.get('version'), 'size': stable.get('size'), 'date': stable.get('date')},
+                  'beta': {'version': beta.get('version'), 'size': beta.get('size'), 'date': beta.get('date')},
+                  'killer': {'version': killer.get('version'), 'size': killer.get('size'), 'date': killer.get('date', '2026-10-08T12:00:00Z')}
+              }
+              
+              with open('app_data.json', 'w', encoding='utf-8') as f:
+                  json.dump(app_data, f, indent=2, ensure_ascii=False)
+          except Exception as e:
+              print('Error:', e)
+          "
+          git config --global user.name "NovaPlay Bot"
+          git config --global user.email "bot@novaplay.py"
+          git add app_data.json
+          git pull origin main --rebase || true
+          git diff --quiet && git diff --staged --quiet || (git commit -m "ACTUALIZADO DESDE CONSTRUCTOR" && git push origin main)

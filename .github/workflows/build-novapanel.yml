@@ -48,4 +48,4 @@ jobs:
           git config --global user.email "bot@novaplay.py"
           git add apks/novapanel.apk
           git pull origin main --rebase || true
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto: Actualizar novapanel.apk desde el Constructor [skip ci]" && git push origin main)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "ACTUALIZADO DESDE CONSTRUCTOR [skip ci]" && git push origin main)
