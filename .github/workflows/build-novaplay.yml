@@ -71,10 +71,10 @@ jobs:
           if os.path.exists(apk_path):
               size_bytes = os.path.getsize(apk_path)
               size_mb = f'{size_bytes / (1024*1024):.1f} MB'
-              utc_date = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+              utc_date = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
               
               if os.path.exists(json_file):
-                  with open(json_file, 'r', encoding='utf-8') as f:
+                  with open(json_file, 'r', encoding='utf-8-sig') as f:
                       data = json.load(f)
               else:
                   data = {}
@@ -105,17 +105,17 @@ jobs:
           python3 -c "
           import json, os, datetime
           try:
-              with open('../updater/json/updatestable.json', 'r', encoding='utf-8') as f:
+              with open('../updater/json/updatestable.json', 'r', encoding='utf-8-sig') as f:
                   stable = json.load(f)
-              with open('../updater/json/updatebeta.json', 'r', encoding='utf-8') as f:
+              with open('../updater/json/updatebeta.json', 'r', encoding='utf-8-sig') as f:
                   beta = json.load(f)
-              with open('../updater/json/ms_aux/updateplay.json', 'r', encoding='utf-8') as f:
+              with open('../updater/json/ms_aux/updateplay.json', 'r', encoding='utf-8-sig') as f:
                   killer = json.load(f)
               
               app_data = {
-                  'stable': {'version': stable.get('version'), 'size': stable.get('size'), 'date': stable.get('date', datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'))},
-                  'beta': {'version': beta.get('version'), 'size': beta.get('size'), 'date': beta.get('date', datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'))},
-                  'killer': {'version': killer.get('version'), 'size': killer.get('size'), 'date': killer.get('date', datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'))}
+                  'stable': {'version': stable.get('version'), 'size': stable.get('size'), 'date': stable.get('date')},
+                  'beta': {'version': beta.get('version'), 'size': beta.get('size'), 'date': beta.get('date')},
+                  'killer': {'version': killer.get('version'), 'size': killer.get('size'), 'date': killer.get('date')}
               }
               
               with open('app_data.json', 'w', encoding='utf-8') as f:
