@@ -65,6 +65,21 @@ jobs:
           cd updater
           python3 -c "
           import json, os, datetime
+          
+          # Auto-sanear errores de codificación (mojibake) en todos los JSONs antes de procesar
+          for root, dirs, files in os.walk('.'):
+              for file in files:
+                  if file.endswith('.json'):
+                      path = os.path.join(root, file)
+                      try:
+                          with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+                              content = f.read()
+                          fixed = content.replace('Ã³', 'ó').replace('Ã¡', 'á').replace('Ãº', 'ú').replace('Ã©', 'é').replace('Ã­', 'í').replace('Ã±', 'ñ').replace('Ã‰', 'É').replace('ÃÓ', 'Ó')
+                          with open(path, 'w', encoding='utf-8') as f:
+                              f.write(fixed)
+                      except Exception as e:
+                          print(f'Error sanitizing {path}: {e}')
+
           json_file = '$JSON_FILE'
           apk_path = 'apks/$APK_NAME'
           
