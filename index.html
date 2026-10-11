@@ -598,7 +598,9 @@
                         if (run.status !== 'completed') {
                             info.innerHTML = `Estado: <span style="color:var(--warning)">${run.status}</span> • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Registros Internos</span>`;
                         } else {
-                            info.innerHTML = `Última ejecución: ${new Date(run.updated_at).toLocaleTimeString()} • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Registros</span>`;
+                            const d = new Date(run.updated_at);
+                            const formattedDate = `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+                            info.innerHTML = `Última ejecución: ${formattedDate} • <span style="cursor:pointer;" onclick="openLogsModal('${run.id}', '${names[i]}')">Ver Registros</span>`;
                         }
                     } else {
                         badge.className = "status-badge idle";
